@@ -39,23 +39,22 @@ const handleLogin = async () => {
   setIsLoading(true);
 
   try {
-    const response = await axios.post(`${API_URL}/login`, {
+    const response = await axios.post(`${API_URL}/auth/login`, {
       email,
       password,
     });
     
-    if (response.data.success) {
-      await AsyncStorage.setItem("token", response.data.token);
-      await AsyncStorage.setItem("user", JSON.stringify(response.data.user));
-      router.push("./dashboard");
-    } else {
-      Alert.alert("Error", response.data.message || "Login failed");
-    }
-  } catch (error) {
-    Alert.alert("Error", "Something went wrong");
-  } finally {
-    setIsLoading(false);
+  if (response.data.access_token) {  // check the token instead of success
+    await AsyncStorage.setItem("token", response.data.access_token);
+    router.push("./dashboard");
+  } else {
+    Alert.alert("Error", "Login failed");
   }
+} catch (error) {
+  Alert.alert("Error", "Something went wrong");
+} finally {
+  setIsLoading(false);
+}
 };
 
 
