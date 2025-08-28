@@ -2,13 +2,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import { API_URL } from '@/config/env';
+import * as ImagePicker from "expo-image-picker";
 
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [photo, setPhoto] = useState<string | null>(null);
 
   // Fetch user info from backend on mount
   useEffect(() => {
@@ -59,6 +61,25 @@ export default function Dashboard() {
     }
   };
 
+  const openCamera = async () => {
+    // Ask for permission
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (permissionResult.status !== "granted") {
+      Alert.alert("Permission Denied", "You need to allow camera access to use this feature.");
+      return;
+    }
+        // Launch camera
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setPhoto(result.assets[0].uri);
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -68,33 +89,36 @@ export default function Dashboard() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to your Dashboard 🎉</Text>
+    <View className="flex-1 items-center justify-center bg-white px-4">
       {user ? (
         <>
-          <Text style={styles.userText}>Name: {user.name}</Text>
-          <Text style={styles.userText}>Email: {user.email}</Text>
+          <Text className="text-2xl font-bold mb-4">Welcome {user.name}</Text>
+          <Text className="text-gray-600 mb-6">{user.email}</Text>
         </>
       ) : (
-        <Text>No user data available</Text>
+        <Text className="text-gray-500 mb-6">No user data available</Text>
       )}
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Log Out</Text>
+      {photo && (
+        <Image source={{ uri: photo }} className="w-72 h-64 rounded-xl mb-4" />
+      )}
+
+      <TouchableOpacity
+        className="bg-blue-500 px-5 py-3 rounded-xl mb-6"
+        onPress={openCamera}
+      >
+        <Text className="text-white font-semibold text-base">Open Camera</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        className="bg-red-500 px-5 py-3 rounded-xl"
+        onPress={handleLogout}
+      >
+        <Text className="text-white font-semibold text-base">Log Out</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f9f9f9", padding: 20 },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 10 },
-  userText: { fontSize: 16, color: "#333", marginBottom: 4 },
-  logoutButton: { backgroundColor: "#ff6b6b", paddingVertical: 12, paddingHorizontal: 30, borderRadius: 12, marginTop: 30 },
-  logoutButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  subtitle: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 30,
-  },
+  container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
 });

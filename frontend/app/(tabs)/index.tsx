@@ -76,7 +76,7 @@ const handleLogin = async () => {
           showsVerticalScrollIndicator={false}
         >
           {/* Header Section */}
-          <View className="items-center mt-[10%] mb-7">
+          <View className="items-center mt-[30%] mb-7">
             <View className="mb-5">
               <View className="w-20 h-20 rounded-full bg-white/20 justify-center items-center border-2 border-white/30">
                 <Ionicons name="person-outline" size={40} color="#fff" />
