@@ -21,9 +21,9 @@ import {
 const { width, height } = Dimensions.get('window');
 
 export default function SignUpScreen() {
-  const [fullName, setFullName] = useState('');
+  const [name, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  // const [mobileNumber, setMobileNumber] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [password_confirmation, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -32,8 +32,8 @@ export default function SignUpScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   const validateForm = () => {
-    if (!fullName.trim()) {
-      Alert.alert('Error', 'Please enter your full name');
+    if (!name.trim()) {
+      Alert.alert('Error', 'Please enter your name');
       return false;
     }
     if (!email.trim()) {
@@ -44,14 +44,14 @@ export default function SignUpScreen() {
       Alert.alert('Error', 'Please enter a valid email address');
       return false;
     }
-    // if (!mobileNumber.trim()) {
-    //   Alert.alert('Error', 'Please enter your mobile number');
-    //   return false;
-    // }
-    // if (mobileNumber.length < 10) {
-    //   Alert.alert('Error', 'Please enter a valid mobile number');
-    //   return false;
-    // }
+    if (!phone.trim()) {
+      Alert.alert('Error', 'Please enter your phone number');
+      return false;
+    }
+    if (phone.length < 10) {
+      Alert.alert('Error', 'Please enter a valid phone number');
+      return false;
+    }
     if (!password) {
       Alert.alert('Error', 'Please enter a password');
       return false;
@@ -78,8 +78,9 @@ export default function SignUpScreen() {
 
     try {
       const response = await axios.post(`${API_URL}/auth/register`, {
-        name: fullName,
+        name,
         email,
+        phone,
         password,
         password_confirmation
       });
@@ -136,7 +137,7 @@ export default function SignUpScreen() {
                   style={styles.input}
                   placeholder="Full Name"
                   placeholderTextColor="#999"
-                  value={fullName}
+                  value={name}
                   onChangeText={setFullName}
                   autoCapitalize="words"
                   autoCorrect={false}
@@ -159,19 +160,19 @@ export default function SignUpScreen() {
               </View>
 
               {/* Mobile Number */}
-              {/* <View style={styles.inputWrapper}>
+              <View style={styles.inputWrapper}>
                 <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Mobile Number"
                   placeholderTextColor="#999"
-                  value={mobileNumber}
-                  onChangeText={setMobileNumber}
+                  value={phone}
+                  onChangeText={setPhone}
                   keyboardType="phone-pad"
                   autoCapitalize="none"
                   autoCorrect={false}
                 />
-              </View> */}
+              </View>
 
               {/* Password */}
               <View style={styles.inputWrapper}>

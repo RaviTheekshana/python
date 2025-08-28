@@ -10,8 +10,8 @@ from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain_password, password):
+    return pwd_context.verify(plain_password, password)
 
 def get_password_hash(password):
     return pwd_context.hash(password)
