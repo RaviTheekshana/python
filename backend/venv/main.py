@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -29,7 +30,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
 
 Base.metadata.create_all(bind=engine)
@@ -66,23 +67,26 @@ def create_access_token(data: dict):
 
 # Endpoints
 @app.post("/register")
-async def register(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.username == username).first()
+async def register(email: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Username already exists")
+        raise HTTPException(status_code=400, detail="Email already exists")
     hashed_password = get_password_hash(password)
-    user = User(username=username, hashed_password=hashed_password)
+    user = User(email=email, hashed_password=hashed_password)
     db.add(user)
     db.commit()
     db.refresh(user)
     return {"message": "User registered successfully"}
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 @app.post("/login")
-async def login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.username == username).first()
-    if not db_user or not verify_password(password, db_user.hashed_password):
+async def login(data: LoginRequest, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == data.email).first()
+    if not db_user or not verify_password(data.password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    access_token = create_access_token(data={"sub": username})
+    access_token = create_access_token(data={"sub": data.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/")
