@@ -16,6 +16,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -78,8 +79,11 @@ const handleLogin = async () => {
           {/* Header Section */}
           <View className="items-center mt-[30%] mb-7">
             <View className="mb-5">
-              <View className="w-20 h-20 rounded-full bg-white/20 justify-center items-center border-2 border-white/30">
-                <Ionicons name="person-outline" size={40} color="#fff" />
+             <View className="w-32 h-32 rounded-full bg-black/20 justify-center items-center border-0 overflow-hidden">
+                <Image
+          source={require("../../assets/images/logo.png")}
+          style={{ width: 130, height: 130, resizeMode: "contain" }}
+        />
               </View>
             </View>
             <Text className="text-white text-2xl font-bold">Welcome Back !</Text>
