@@ -16,6 +16,7 @@ import {
     TextInput,
     TouchableOpacity,
     View,
+    Image,
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -110,7 +111,7 @@ export default function SignUpScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={['#2c4bd4', '#764ba2']}
         style={styles.gradient}
       >
         <ScrollView
@@ -120,8 +121,11 @@ export default function SignUpScreen() {
           {/* Header Section */}
           <View style={styles.headerContainer}>
             <View style={styles.logoContainer}>
-              <View style={styles.logoCircle}>
-                <Ionicons name="person-add-outline" size={30} color="#fff" />
+              <View className="w-24 h-24 rounded-full bg-black/20 justify-center items-center border-0 overflow-hidden">
+                <Image
+                  source={require("../../assets/images/logo.png")}
+                  style={{ width: 100, height: 100, resizeMode: "contain" }}
+                />
               </View>
             </View>
             <Text style={styles.welcomeText}>Create Account</Text>
@@ -260,25 +264,6 @@ export default function SignUpScreen() {
               </LinearGradient>
             </TouchableOpacity>
 
-            {/* Social Login Options */}
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or sign up with</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <View style={styles.socialContainer}>
-              <TouchableOpacity style={styles.socialButton}>
-                <Ionicons name="logo-google" size={24} color="#4285F4" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Ionicons name="logo-apple" size={24} color="#000" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Ionicons name="logo-facebook" size={24} color="#1877F2" />
-              </TouchableOpacity>
-            </View>
-
             {/* Sign In Link */}
             <View style={styles.signInContainer}>
               <Text style={styles.signInText}>Already have an account? </Text>
@@ -341,17 +326,17 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     paddingHorizontal: 24,
     paddingTop: 32,
-    paddingBottom: 24,
+    paddingBottom: 14,
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: '#e9ecef',
   },
@@ -371,7 +356,7 @@ const styles = StyleSheet.create({
   termsContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 24,
+    marginBottom: 16,
     paddingRight: 8,
   },
   checkbox: {
@@ -402,7 +387,7 @@ const styles = StyleSheet.create({
   signUpButton: {
     borderRadius: 12,
     overflow: 'hidden',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   signUpButtonDisabled: {
     opacity: 0.7,
@@ -420,37 +405,6 @@ const styles = StyleSheet.create({
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#e9ecef',
-  },
-  dividerText: {
-    paddingHorizontal: 16,
-    color: '#666',
-    fontSize: 14,
-  },
-  socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 32,
-    gap: 16,
-  },
-  socialButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: '#f8f9fa',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e9ecef',
   },
   signInContainer: {
     flexDirection: 'row',

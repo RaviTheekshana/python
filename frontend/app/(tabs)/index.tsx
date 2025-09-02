@@ -69,7 +69,7 @@ const handleLogin = async () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={['#2c4bd4', '#764ba2']}
         style={styles.gradient}
       >
         <ScrollView
@@ -77,8 +77,8 @@ const handleLogin = async () => {
           showsVerticalScrollIndicator={false}
         >
           {/* Header Section */}
-          <View className="items-center mt-[30%] mb-7">
-            <View className="mb-5">
+          <View className="items-center mt-[30%] mb-5">
+            <View className="mb-2">
              <View className="w-32 h-32 rounded-full bg-black/20 justify-center items-center border-0 overflow-hidden">
                 <Image
           source={require("../../assets/images/logo.png")}
@@ -86,7 +86,7 @@ const handleLogin = async () => {
         />
               </View>
             </View>
-            <Text className="text-white text-2xl font-bold">Welcome Back !</Text>
+            <Text className="text-white text-3xl font-bold">Welcome Back</Text>
           </View>
 {/* Login Form */}
           <View className="bg-white rounded-3xl px-6 py-8">
