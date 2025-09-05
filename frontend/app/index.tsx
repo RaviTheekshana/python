@@ -81,7 +81,7 @@ const handleLogin = async () => {
             <View className="mb-2">
              <View className="w-32 h-32 rounded-full bg-black/20 justify-center items-center border-0 overflow-hidden">
                 <Image
-          source={require("../../assets/images/logo.png")}
+          source={require("../assets/images/logo.png")}
           style={{ width: 130, height: 130, resizeMode: "contain" }}
         />
               </View>

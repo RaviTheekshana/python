@@ -123,7 +123,7 @@ export default function SignUpScreen() {
             <View style={styles.logoContainer}>
               <View className="w-24 h-24 rounded-full bg-black/20 justify-center items-center border-0 overflow-hidden">
                 <Image
-                  source={require("../../assets/images/logo.png")}
+                  source={require("../assets/images/logo.png")}
                   style={{ width: 100, height: 100, resizeMode: "contain" }}
                 />
               </View>
