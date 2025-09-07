@@ -107,174 +107,204 @@ export default function SignUpScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  className="flex-1"
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+>
+  {/* Deep, flat dark background like login */}
+  <LinearGradient colors={["#0B121A", "#0B121A"]} style={styles.gradient}>
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24 }}
+      showsVerticalScrollIndicator={false}
     >
-      <LinearGradient
-        colors={['#2c4bd4', '#764ba2']}
-        style={styles.gradient}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
+      {/* Header */}
+      <View className="items-center mt-[14%] mb-5">
+        <View className="w-24 h-24 rounded-full bg-white/5 justify-center items-center mb-3">
+          <Image
+            source={require("../assets/images/logo.png")}
+            style={{ width: 96, height: 96, resizeMode: "contain" }}
+          />
+        </View>
+
+        <Text className="text-white text-[34px] font-extrabold leading-tight">
+          Part<Text className="text-[#1E63D9]">Pal</Text>
+        </Text>
+        <Text className="text-slate-300 text-base mt-1">
+          AI-Powered Spare Parts
+        </Text>
+
+        <Text className="text-white text-3xl font-extrabold mt-5">
+          Welcome to PartPal
+        </Text>
+      </View>
+
+      {/* Form */}
+      <View className="mt-2">
+        {/* Name */}
+        <View className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 mb-4">
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color="#94A3B8"
+            style={{ marginLeft: 16, marginRight: 12 }}
+          />
+          <TextInput
+            className="flex-1 h-14 text-base text-white pr-11"
+            placeholder="Name"
+            placeholderTextColor="#94A3B8"
+            value={name}
+            onChangeText={setFullName}
+            autoCapitalize="words"
+            autoCorrect={false}
+          />
+        </View>
+
+        {/* Email */}
+        <View className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 mb-4">
+          <Ionicons
+            name="mail-outline"
+            size={20}
+            color="#94A3B8"
+            style={{ marginLeft: 16, marginRight: 12 }}
+          />
+          <TextInput
+            className="flex-1 h-14 text-base text-white pr-11"
+            placeholder="Email"
+            placeholderTextColor="#94A3B8"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+
+        {/* Phone */}
+        <View className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 mb-4">
+          <Ionicons
+            name="call-outline"
+            size={20}
+            color="#94A3B8"
+            style={{ marginLeft: 16, marginRight: 12 }}
+          />
+          <TextInput
+            className="flex-1 h-14 text-base text-white pr-11"
+            placeholder="Phone"
+            placeholderTextColor="#94A3B8"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+
+        {/* Password */}
+        <View className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 mb-4">
+          <Ionicons
+            name="lock-closed-outline"
+            size={20}
+            color="#94A3B8"
+            style={{ marginLeft: 16, marginRight: 12 }}
+          />
+          <TextInput
+            className="flex-1 h-14 text-base text-white"
+            placeholder="Password"
+            placeholderTextColor="#94A3B8"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className="px-3">
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color="#94A3B8"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Confirm Password */}
+        <View className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 mb-2">
+          <Ionicons
+            name="lock-closed-outline"
+            size={20}
+            color="#94A3B8"
+            style={{ marginLeft: 16, marginRight: 12 }}
+          />
+          <TextInput
+            className="flex-1 h-14 text-base text-white"
+            placeholder="Confirm Password"
+            placeholderTextColor="#94A3B8"
+            value={password_confirmation}
+            onChangeText={setConfirmPassword}
+            secureTextEntry={!showConfirmPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity
+            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="px-3"
+          >
+            <Ionicons
+              name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color="#94A3B8"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* (Optional) Forgot Password link, if you want it here */}
+        {/* <TouchableOpacity onPress={handleForgotPassword} className="items-end mb-4">
+          <Text className="text-[#1E63D9] text-sm font-semibold">Forgot Password?</Text>
+        </TouchableOpacity> */}
+
+        {/* Terms */}
+        <TouchableOpacity
+          onPress={() => setAcceptTerms(!acceptTerms)}
+          className="flex-row items-center mb-5"
         >
-          {/* Header Section */}
-          <View style={styles.headerContainer}>
-            <View style={styles.logoContainer}>
-              <View className="w-24 h-24 rounded-full bg-black/20 justify-center items-center border-0 overflow-hidden">
-                <Image
-                  source={require("../assets/images/logo.png")}
-                  style={{ width: 100, height: 100, resizeMode: "contain" }}
-                />
-              </View>
-            </View>
-            <Text style={styles.welcomeText}>Create Account</Text>
+          <View
+            className={`w-5 h-5 rounded-md mr-2 items-center justify-center ${
+              acceptTerms ? "bg-[#1E63D9] border-[#1E63D9]" : "bg-transparent border-white/25"
+            } border`}
+          >
+            {acceptTerms && <Ionicons name="checkmark" size={16} color="#fff" />}
           </View>
+          <Text className="text-slate-200 flex-1">
+            I agree to the <Text className="text-[#1E63D9] font-semibold">Terms and Conditions</Text> and{" "}
+            <Text className="text-[#1E63D9] font-semibold">Privacy Policy</Text>
+          </Text>
+        </TouchableOpacity>
 
-          {/* Sign Up Form */}
-          <View style={styles.formContainer}>
-            <View style={styles.inputContainer}>
-              {/* Full Name */}
-              <View style={styles.inputWrapper}>
-                <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Full Name"
-                  placeholderTextColor="#999"
-                  value={name}
-                  onChangeText={setFullName}
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                />
-              </View>
+        {/* CTA – blue gradient like login */}
+        <TouchableOpacity
+          onPress={handleSignUp}
+          disabled={isLoading}
+          className={`rounded-2xl overflow-hidden mb-10 ${isLoading ? "opacity-70" : ""}`}
+        >
+          <LinearGradient
+            colors={isLoading ? ["#334155", "#1F2937"] : ["#1E63D9", "#0B56C6"]}
+            style={styles.buttonGradient}
+          >
+            <Text className="text-white text-xl font-semibold">
+              {isLoading ? "Creating Account..." : "Sign Up / Login"}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
 
-              {/* Email */}
-              <View style={styles.inputWrapper}>
-                <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Email address"
-                  placeholderTextColor="#999"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
-
-              {/* Mobile Number */}
-              <View style={styles.inputWrapper}>
-                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Mobile Number"
-                  placeholderTextColor="#999"
-                  value={phone}
-                  onChangeText={setPhone}
-                  keyboardType="phone-pad"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
-
-              {/* Password */}
-              <View style={styles.inputWrapper}>
-                <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Password"
-                  placeholderTextColor="#999"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}
-                >
-                  <Ionicons
-                    name={showPassword ? "eye-off-outline" : "eye-outline"}
-                    size={20}
-                    color="#666"
-                  />
-                </TouchableOpacity>
-              </View>
-
-              {/* Confirm Password */}
-              <View style={styles.inputWrapper}>
-                <Ionicons name="checkmark-circle-outline" size={20} color="#666" style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Confirm Password"
-                  placeholderTextColor="#999"
-                  value={password_confirmation}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={styles.eyeIcon}
-                >
-                  <Ionicons
-                    name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
-                    size={20}
-                    color="#666"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Terms and Conditions */}
-            <TouchableOpacity
-              style={styles.termsContainer}
-              onPress={() => setAcceptTerms(!acceptTerms)}
-            >
-              <View style={[styles.checkbox, acceptTerms && styles.checkboxChecked]}>
-                {acceptTerms && <Ionicons name="checkmark" size={16} color="#fff" />}
-              </View>
-              <Text style={styles.termsText}>
-                I agree to the{' '}
-                <Text style={styles.termsLink}>Terms and Conditions</Text>
-                {' '}and{' '}
-                <Text style={styles.termsLink}>Privacy Policy</Text>
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.signUpButton, isLoading && styles.signUpButtonDisabled]}
-              onPress={handleSignUp}
-              disabled={isLoading}
-            >
-              <LinearGradient
-                colors={isLoading ? ['#ccc', '#999'] : ['#ff6b6b', '#ee5a52']}
-                style={styles.buttonGradient}
-              >
-                {isLoading ? (
-                  <View style={styles.loadingContainer}>
-                    <Text style={styles.buttonText}>Creating Account...</Text>
-                  </View>
-                ) : (
-                  <Text style={styles.buttonText}>Create Account</Text>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
-
-            {/* Sign In Link */}
-            <View style={styles.signInContainer}>
-              <Text style={styles.signInText}>Already have an account? </Text>
-              <TouchableOpacity onPress={handleSignIn}>
-                <Text style={styles.signInLink}>Sign In</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
-      </LinearGradient>
-    </KeyboardAvoidingView>
+        {/* Footer */}
+        <View className="flex-row justify-center items-center mb-12">
+          <Text className="text-slate-400 text-base">Already have an account? </Text>
+          <TouchableOpacity onPress={handleSignIn}>
+            <Text className="text-[#1E63D9] text-base font-semibold">Log In</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
+  </LinearGradient>
+</KeyboardAvoidingView>
   );
 }
 

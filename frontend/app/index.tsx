@@ -64,153 +64,153 @@ const handleLogin = async () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+ <KeyboardAvoidingView
+  className="flex-1"
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+>
+  {/* Deep, nearly-flat dark background */}
+  <LinearGradient
+    colors={["#0B121A", "#0B121A"]}
+    style={styles.gradient}
+  >
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24 }}
+      showsVerticalScrollIndicator={false}
     >
-      <LinearGradient
-        colors={['#2c4bd4', '#764ba2']}
-        style={styles.gradient}
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24 }}
-          showsVerticalScrollIndicator={false}
+      {/* Header */}
+      <View className="items-center mt-[22%] mb-6">
+        <View className="mb-4">
+          <View className="w-28 h-28 rounded-full bg-white/5 justify-center items-center overflow-hidden">
+            <Image
+              source={require("../assets/images/logo.png")}
+              style={{ width: 100, height: 100, resizeMode: "contain" }}
+            />
+          </View>
+        </View>
+
+        {/* Brand + Tagline */}
+        <View className="items-center mb-6">
+          <Text className="text-white text-[34px] font-extrabold leading-tight">
+            Part
+            <Text className="text-[#1E63D9]">Pal</Text>
+          </Text>
+          <Text className="text-slate-300 text-base mt-1">
+            AI-Powered Spare Parts
+          </Text>
+        </View>
+
+        <Text className="text-white text-3xl font-extrabold">
+          Welcome Back
+        </Text>
+      </View>
+
+      {/* Form – dark surfaces, soft borders */}
+      <View className="px-1">
+        {/* Email */}
+        <View className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 mb-4">
+          <Ionicons
+            name="mail-outline"
+            size={20}
+            color="#94A3B8"
+            style={{ marginLeft: 16, marginRight: 12 }}
+          />
+          <TextInput
+            className="flex-1 h-14 text-base text-white"
+            placeholder="Email"
+            placeholderTextColor="#94A3B8"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+
+        {/* Password */}
+        <View className="flex-row items-center bg-white/5 rounded-2xl border border-white/10 mb-2">
+          <Ionicons
+            name="lock-closed-outline"
+            size={20}
+            color="#94A3B8"
+            style={{ marginLeft: 16, marginRight: 12 }}
+          />
+          <TextInput
+            className="flex-1 h-14 text-base text-white"
+            placeholder="Password"
+            placeholderTextColor="#94A3B8"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className="px-4">
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color="#94A3B8"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Forgot Password */}
+        <TouchableOpacity onPress={handleForgotPassword} className="items-end mb-6">
+          <Text className="text-[#1E63D9] text-sm font-semibold">
+            Forgot Password?
+          </Text>
+        </TouchableOpacity>
+
+        {/* CTA – blue, subtle glow */}
+        <TouchableOpacity
+          onPress={handleLogin}
+          disabled={isLoading}
+          className={`rounded-2xl overflow-hidden mb-10 ${isLoading ? "opacity-70" : ""}`}
         >
-          {/* Header Section */}
-          <View className="items-center mt-[30%] mb-5">
-            <View className="mb-2">
-             <View className="w-32 h-32 rounded-full bg-black/20 justify-center items-center border-0 overflow-hidden">
-                <Image
-          source={require("../assets/images/logo.png")}
-          style={{ width: 130, height: 130, resizeMode: "contain" }}
-        />
+          <LinearGradient
+            colors={isLoading ? ["#334155", "#1F2937"] : ["#1E63D9", "#0B56C6"]}
+            style={styles.buttonGradient}
+          >
+            {isLoading ? (
+              <View className="flex-row items-center">
+                <Text className="text-white text-lg font-semibold">Signing In...</Text>
               </View>
-            </View>
-            <Text className="text-white text-3xl font-bold">Welcome Back</Text>
-          </View>
-{/* Login Form */}
-          <View className="bg-white rounded-3xl px-6 py-8">
-            {/* Email */}
-            <View className="flex-row items-center bg-gray-100 rounded-xl border border-gray-200 mb-4">
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color="#666"
-                style={{ marginLeft: 16, marginRight: 12 }}
-              />
-              <TextInput
-                className="flex-1 h-14 text-base text-gray-800"
-                placeholder="Email address"
-                placeholderTextColor="#999"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
+            ) : (
+              <Text className="text-white text-xl font-semibold">Login</Text>
+            )}
+          </LinearGradient>
+        </TouchableOpacity>
 
-            {/* Password */}
-            <View className="flex-row items-center bg-gray-100 rounded-xl border border-gray-200 mb-4">
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color="#666"
-                style={{ marginLeft: 16, marginRight: 12 }}
-              />
-              <TextInput
-                className="flex-1 h-14 text-base text-gray-800"
-                placeholder="Password"
-                placeholderTextColor="#999"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                className="px-4"
-              >
-                <Ionicons
-                  name={showPassword ? "eye-off-outline" : "eye-outline"}
-                  size={20}
-                  color="#666"
-                />
-              </TouchableOpacity>
-            </View>
+        {/* Divider */}
+        <View className="flex-row items-center mb-8">
+          <View className="flex-1 h-px bg-white/10" />
+          <Text className="px-4 text-slate-400 text-sm">or continue with</Text>
+          <View className="flex-1 h-px bg-white/10" />
+        </View>
 
-            {/* Forgot Password */}
-            <TouchableOpacity
-              onPress={handleForgotPassword}
-              className="items-end mb-4"
-            >
-              <Text className="text-indigo-500 text-sm font-semibold">
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
+        {/* Socials – dark tiles */}
+        <View className="flex-row justify-center gap-4 mb-10">
+          <TouchableOpacity className="w-14 h-14 rounded-2xl bg-white/5 justify-center items-center border border-white/10">
+            <Ionicons name="logo-google" size={24} color="#4285F4" />
+          </TouchableOpacity>
+          <TouchableOpacity className="w-14 h-14 rounded-2xl bg-white/5 justify-center items-center border border-white/10">
+            <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity className="w-14 h-14 rounded-2xl bg-white/5 justify-center items-center border border-white/10">
+            <Ionicons name="logo-facebook" size={24} color="#1877F2" />
+          </TouchableOpacity>
+        </View>
 
-            {/* Login Button */}
-            <TouchableOpacity
-              onPress={handleLogin}
-              disabled={isLoading}
-              className={`rounded-xl overflow-hidden mb-8 ${
-                isLoading ? "opacity-70" : ""
-              }`}
-            >
-              <LinearGradient
-                colors={isLoading ? ['#ccc', '#999'] : ['#ff6b6b', '#ee5a52']}
-                style={styles.buttonGradient}
-              >
-               {isLoading ? (
-                  <View className="flex-row items-center">
-                    <Text className="text-white text-lg font-semibold">
-                      Signing In...
-                    </Text>
-                  </View>
-                ) : (
-                  <Text className="text-white text-xl font-semibold">
-                    Sign In
-                  </Text>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
-
-           {/* Divider */}
-            <View className="flex-row items-center mb-8">
-              <View className="flex-1 h-px bg-gray-200" />
-              <Text className="px-4 text-gray-600 text-sm">or continue with</Text>
-              <View className="flex-1 h-px bg-gray-200" />
-            </View>
-
-            {/* Social Buttons */}
-            <View className="flex-row justify-center gap-4 mb-8">
-              <TouchableOpacity className="w-14 h-14 rounded-xl bg-gray-100 justify-center items-center border border-gray-200">
-                <Ionicons name="logo-google" size={24} color="#4285F4" />
-              </TouchableOpacity>
-              <TouchableOpacity className="w-14 h-14 rounded-xl bg-gray-100 justify-center items-center border border-gray-200">
-                <Ionicons name="logo-apple" size={24} color="#000" />
-              </TouchableOpacity>
-              <TouchableOpacity className="w-14 h-14 rounded-xl bg-gray-100 justify-center items-center border border-gray-200">
-                <Ionicons name="logo-facebook" size={24} color="#1877F2" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Sign Up Link */}
-            <View className="flex-row justify-center items-center">
-              <Text className="text-gray-600 text-base">
-                Don't have an account?{" "}
-              </Text>
-              <TouchableOpacity onPress={handleSignUp}>
-                <Text className="text-indigo-500 text-base font-semibold">
-                  Sign Up
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
-      </LinearGradient>
-    </KeyboardAvoidingView>
+        {/* Footer */}
+        <View className="flex-row justify-center items-center mb-14">
+          <Text className="text-slate-400 text-base">Don’t have an account? </Text>
+          <TouchableOpacity onPress={handleSignUp}>
+            <Text className="text-[#1E63D9] text-base font-semibold">Sign Up</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
+  </LinearGradient>
+</KeyboardAvoidingView>
   );
 }
 
