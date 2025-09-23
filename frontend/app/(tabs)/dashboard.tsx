@@ -37,6 +37,9 @@ export default function Dashboard() {
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [prediction, setPrediction] = useState<string | null>(null);
+  const [confidence, setConfidence] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -87,23 +90,81 @@ export default function Dashboard() {
   };
 
   const openCamera = async () => {
-    // Ask for permission
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (permissionResult.status !== "granted") {
       Alert.alert("Permission Denied", "You need to allow camera access to use this feature.");
       return;
     }
-        // Launch camera
+
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
-      aspect: [16, 9],
+      aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      setPhoto(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      setPhoto(uri);
+      uploadImage(uri);
     }
   };
+
+  const pickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permission.status !== "granted") {
+      Alert.alert("Permission Denied", "We need permission to access your photos.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setPhoto(uri);
+      uploadImage(uri);
+    }
+  };
+
+  const uploadImage = async (uri: string) => {
+    try {
+      setIsUploading(true);
+      setPrediction(null);
+      setConfidence(null);
+
+      const filename = uri.split("/").pop() || "photo.jpg";
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : "image/jpeg";
+
+      const formData = new FormData();
+      // note key must match backend UploadFile parameter name ("file")
+      formData.append("file", {
+        uri,
+        name: filename,
+        type,
+      } as any);
+
+      const res = await axios.post(`${API_URL}/predict`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000,
+      });
+
+      if (res.data && res.data.success) {
+        setPrediction(res.data.part);
+        setConfidence(res.data.confidence);
+      } else {
+        Alert.alert("No detection", res.data?.message || "No part detected");
+      }
+    } catch (err: any) {
+      console.log("Upload error:", err?.response?.data || err.message || err);
+      Alert.alert("Error", "Prediction failed. Check backend logs and that API_URL is correct.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -219,6 +280,38 @@ export default function Dashboard() {
             ))}
           </View>
         </View>
+        
+      {/* Buttons */}
+      <View className="flex-row justify-center px-6 mb-6">
+        <TouchableOpacity onPress={openCamera} className="mr-3 p-4 bg-blue-600 rounded-lg">
+          <Text className="text-white text-base font-semibold text-center">Open Camera</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={pickImage} className="p-4 bg-emerald-500 rounded-lg">
+          <Text className="text-white text-base font-semibold text-center">Pick From Gallery</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Preview */}
+      {photo && (
+        <Image
+          source={{ uri: photo }}
+          resizeMode="cover"
+          className="w-[90%] h-56 self-center mt-4 rounded-xl"
+        />
+      )}
+      {/* Uploading */}
+      {isUploading && (
+        <View className="items-center mt-3">
+          <ActivityIndicator size="large" color="#ffffff" />
+        </View>
+      )}
+      {/* Prediction */}
+      {prediction && (
+        <View className="p-4 items-center mt-3">
+          <Text className="text-white text-lg font-extrabold">{prediction}</Text>
+          <Text className="text-gray-400 mt-1">Confidence: {confidence}</Text>
+        </View>
+      )}
 
         {/* Key Metrics */}
         <View className="px-6 mb-6">
