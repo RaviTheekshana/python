@@ -38,15 +38,12 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [photo, setPhoto] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [prediction, setPrediction] = useState<string | null>(null);
-  const [confidence, setConfidence] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
         if (!token) {
-          // If no token, redirect to login
           router.replace("/");
           return;
         }
@@ -55,19 +52,19 @@ export default function Dashboard() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        setUser(response.data); // Laravel should return the user object
+        setUser(response.data);
       } catch (error) {
         if (error && typeof error === "object" && "response" in error && error.response && typeof error.response === "object" && "data" in error.response) {
-          // @ts-ignore
+        
           console.log("Fetch user error:", error.response.data);
         } else if (error && typeof error === "object" && "message" in error) {
-          // @ts-ignore
+
           console.log("Fetch user error:", error.message);
         } else {
           console.log("Fetch user error:", error);
         }
         Alert.alert("Error", "Failed to fetch user info. Logging out...");
-        // If token invalid, logout
+    
         await AsyncStorage.removeItem("token");
         router.replace("/");
       } finally {
@@ -89,77 +86,52 @@ export default function Dashboard() {
     }
   };
 
-  const openCamera = async () => {
-    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-    if (permissionResult.status !== "granted") {
-      Alert.alert("Permission Denied", "You need to allow camera access to use this feature.");
+    const openCamera = async () => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (perm.status !== "granted") {
+      Alert.alert("Permission Denied", "Camera access is required to scan.");
       return;
     }
-
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
+      quality: 1,
       aspect: [4, 3],
-      quality: 1,
     });
-
     if (!result.canceled) {
-      const uri = result.assets[0].uri;
-      setPhoto(uri);
-      uploadImage(uri);
+      await uploadAndGo(result.assets[0].uri);
     }
   };
 
-  const pickImage = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permission.status !== "granted") {
-      Alert.alert("Permission Denied", "We need permission to access your photos.");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const uri = result.assets[0].uri;
-      setPhoto(uri);
-      uploadImage(uri);
-    }
-  };
-
-  const uploadImage = async (uri: string) => {
+  const uploadAndGo = async (uri: string) => {
     try {
       setIsUploading(true);
-      setPrediction(null);
-      setConfidence(null);
-
       const filename = uri.split("/").pop() || "photo.jpg";
       const match = /\.(\w+)$/.exec(filename);
       const type = match ? `image/${match[1]}` : "image/jpeg";
-
       const formData = new FormData();
-      // note key must match backend UploadFile parameter name ("file")
-      formData.append("file", {
-        uri,
-        name: filename,
-        type,
-      } as any);
+      formData.append("file", { uri, name: filename, type } as any);
 
-      const res = await axios.post(`${API_URL}/predict`, formData, {
+      const r = await axios.post(`${API_URL}/predict`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         timeout: 60000,
       });
 
-      if (res.data && res.data.success) {
-        setPrediction(res.data.part);
-        setConfidence(res.data.confidence);
-      } else {
-        Alert.alert("No detection", res.data?.message || "No part detected");
-      }
-    } catch (err: any) {
-      console.log("Upload error:", err?.response?.data || err.message || err);
-      Alert.alert("Error", "Prediction failed. Check backend logs and that API_URL is correct.");
+      const success = r.data?.success;
+      const prediction = r.data?.part ?? "";
+      const confidence = r.data?.confidence ?? "";
+
+      // Go to /search with results (even if no detection, still pass photo)
+      router.push({
+        pathname: "/search",
+        params: {
+          photo: uri,
+          prediction: success ? String(prediction) : "",
+          confidence: success ? String(confidence) : "",
+          // you can also pass a flag if you want to show a toast there
+        },
+      });
+    } catch (e) {
+      Alert.alert("Error", "Prediction failed. Check API_URL/back-end.");
     } finally {
       setIsUploading(false);
     }
@@ -229,6 +201,12 @@ export default function Dashboard() {
       price: '$89.99',
       image: 'https://www.expresscareautomn.com/images/brake_repair_service2.jpeg',
     },
+    {
+      id: 3,
+      title: 'LED Headlight Kit',
+      price: '$49.99',
+      image: 'https://media.istockphoto.com/id/177356443/photo/modern-car-headlights.jpg?s=612x612&w=0&k=20&c=X445EnNRQwNL-vYHr8SQRzEAJ9E484XH3QC_UUakU94=',
+    }
   ];
 
   const recentActivity = [
@@ -279,39 +257,13 @@ export default function Dashboard() {
               </TouchableOpacity>
             ))}
           </View>
+          {isUploading && (
+  <View className="absolute inset-0 bg-black/70 items-center justify-center z-50">
+    <ActivityIndicator size="large" color="#ffffff" />
+    <Text className="text-gray-200 mt-4 text-lg font-semibold">Scanning…</Text>
+  </View>
+)}
         </View>
-        
-      {/* Buttons */}
-      <View className="flex-row justify-center px-6 mb-6">
-        <TouchableOpacity onPress={openCamera} className="mr-3 p-4 bg-blue-600 rounded-lg">
-          <Text className="text-white text-base font-semibold text-center">Open Camera</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={pickImage} className="p-4 bg-emerald-500 rounded-lg">
-          <Text className="text-white text-base font-semibold text-center">Pick From Gallery</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Preview */}
-      {photo && (
-        <Image
-          source={{ uri: photo }}
-          resizeMode="cover"
-          className="w-[90%] h-56 self-center mt-4 rounded-xl"
-        />
-      )}
-      {/* Uploading */}
-      {isUploading && (
-        <View className="items-center mt-3">
-          <ActivityIndicator size="large" color="#ffffff" />
-        </View>
-      )}
-      {/* Prediction */}
-      {prediction && (
-        <View className="p-4 items-center mt-3">
-          <Text className="text-white text-lg font-extrabold">{prediction}</Text>
-          <Text className="text-gray-400 mt-1">Confidence: {confidence}</Text>
-        </View>
-      )}
 
         {/* Key Metrics */}
         <View className="px-6 mb-6">

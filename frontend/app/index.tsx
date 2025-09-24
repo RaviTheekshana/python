@@ -4,7 +4,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
-import React, { useState } from 'react';
+import { useEffect, useState } from "react";
+import { Image as ExpoImage } from "expo-image";
+import * as SplashScreen from "expo-splash-screen";
+import { Asset } from "expo-asset";
 import {
   Alert,
   Dimensions,
@@ -26,10 +29,21 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [ready, setReady] = useState(false);
   const router = useRouter();
   const handleSignUp = () => {
   router.push("./signup");
+
 };
+useEffect(() => {
+    (async () => {
+      await Asset.loadAsync([require("../assets/images/logo.png")]);
+      setReady(true);
+      SplashScreen.hideAsync();
+    })();
+  }, []);
+
+  if (!ready) return null;
 
 const handleLogin = async () => {
   if (!email || !password) {
@@ -81,10 +95,13 @@ const handleLogin = async () => {
       <View className="items-center mt-[22%] mb-6">
         <View className="mb-4">
           <View className="w-28 h-28 rounded-full bg-white/5 justify-center items-center overflow-hidden">
-            <Image
+            <ExpoImage
               source={require("../assets/images/logo.png")}
-              style={{ width: 100, height: 100, resizeMode: "contain" }}
-            />
+              style={{ width: 100, height: 100, borderRadius: 999 }}
+              contentFit="contain"
+              cachePolicy="memory-disk"   // strong cache
+              transition={0}              // no fade
+              />
           </View>
         </View>
 
