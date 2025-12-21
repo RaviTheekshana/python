@@ -1,4 +1,3 @@
-# backend/app/routes/predict.py
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from app.services.predict_service import predict_from_bytes
 
