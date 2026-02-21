@@ -5,7 +5,7 @@ const bottomTabs = [
   { name: "Dashboard", icon: "🏠" },
   { name: "Search", icon: "🔍" },
   { name: "Parts", icon: "🔧" },
-  { name: "Cart", icon: "🛒" },
+  { name: "Vendor", icon: "🏢" },
   { name: "Account", icon: "👤" },
 ];
 

@@ -7,75 +7,59 @@ import traceback
 MODEL_PATH = "app/models/best.pt"
 MODEL = YOLO(MODEL_PATH)  # load once at import
 
-def _to_pylist(x):
-    """Convert a torch/numpy/list scalar/array/tensor to plain python list."""
+
+def _to_list(x):
     try:
-        # torch tensor with .cpu()
         return x.cpu().numpy().tolist()
     except Exception:
         pass
     try:
-        # numpy array
         return x.numpy().tolist()
     except Exception:
         pass
     try:
-        # has .tolist()
         return x.tolist()
     except Exception:
         pass
     try:
-        # iterable fallback
         return list(x)
     except Exception:
         return [x]
 
-def parse_results(results):
+
+def detect_best(img: Image.Image):
     """
-    Returns dict: { success: bool, part, confidence } or message
-    Works with Ultralytics Results object.
+    Returns:
+      {
+        success: bool,
+        part: str,
+        confidence: float,
+        bbox: [x1,y1,x2,y2]
+      }
     """
     try:
+        results = MODEL(img)
         if not results or len(results) == 0:
             return {"success": False, "message": "No results object"}
 
-        r = results[0]  # first image
-        # r.boxes may be None or empty
+        r = results[0]
         boxes = getattr(r, "boxes", None)
         if boxes is None or len(boxes) == 0:
             return {"success": False, "message": "No part detected"}
 
-        # try to extract class ids and confidences robustly
-        cls_raw = getattr(boxes, "cls", None) or getattr(boxes, "classes", None)
-        conf_raw = getattr(boxes, "conf", None) or getattr(boxes, "confs", None) or getattr(boxes, "confidence", None)
+        cls_list = _to_list(getattr(boxes, "cls", None))
+        conf_list = _to_list(getattr(boxes, "conf", None))
+        xyxy_list = _to_list(getattr(boxes, "xyxy", None))
 
-        cls_list = _to_pylist(cls_raw) if cls_raw is not None else None
-        conf_list = _to_pylist(conf_raw) if conf_raw is not None else None
+        # pick best by confidence
+        best_i = int(max(range(len(conf_list)), key=lambda i: conf_list[i]))
+        cls_id = int(cls_list[best_i])
+        conf = float(conf_list[best_i])
 
-        # ensure we have at least one element
-        if cls_list and len(cls_list) > 0:
-            cls_id = int(cls_list[0])
-        else:
-            # fallback: some versions put classes in r.boxes.data or r.boxes.cpu().numpy()
-            # try to read from r.boxes.data if present
-            try:
-                data = getattr(boxes, "data", None)
-                data_list = _to_pylist(data)
-                # usually data columns: x1,y1,x2,y2,conf,class
-                cls_id = int(data_list[0][-1])
-                conf = float(data_list[0][4])
-                label = MODEL.names.get(cls_id, str(cls_id)) if isinstance(MODEL.names, dict) else MODEL.names[cls_id]
-                return {"success": True, "part": label, "confidence": round(conf, 4)}
-            except Exception:
-                return {"success": False, "message": "Could not parse detection results"}
+        # bbox = [x1,y1,x2,y2]
+        bbox = xyxy_list[best_i]
+        bbox = [float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])]
 
-        # confidence
-        if conf_list and len(conf_list) > 0:
-            conf = float(conf_list[0])
-        else:
-            conf = None
-
-        # label: MODEL.names can be dict or list
         names = getattr(MODEL, "names", None)
         if isinstance(names, dict):
             label = names.get(cls_id, str(cls_id))
@@ -84,13 +68,31 @@ def parse_results(results):
         else:
             label = str(cls_id)
 
-        return {"success": True, "part": label, "confidence": round(conf, 4) if conf is not None else None}
+        return {
+            "success": True,
+            "part": label,
+            "confidence": round(conf, 4),
+            "bbox": bbox,
+        }
+
     except Exception as e:
-        # return a helpful error
-        tb = traceback.format_exc()
-        return {"success": False, "message": "Error parsing results", "error": str(e), "trace": tb}
+        return {
+            "success": False,
+            "message": "YOLO detection error",
+            "error": str(e),
+            "trace": traceback.format_exc(),
+        }
+
 
 def predict_from_bytes(image_bytes: bytes):
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    results = MODEL(img)  # run inference
-    return parse_results(results)
+    det = detect_best(img)
+    # keep old /predict response shape
+    if det.get("success"):
+        return {"success": True, "part": det["part"], "confidence": det["confidence"]}
+    return det
+
+
+def detect_best_from_bytes(image_bytes: bytes):
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    return detect_best(img), img

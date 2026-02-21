@@ -4,6 +4,9 @@ from app.routes import auth
 from app.database.session import Base, engine
 from app.routes import auth, user
 from app.routes import predict
+from app.routes import verify
+from app.routes import vendors
+from app.routes import parts
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -23,6 +26,9 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(user.router, tags=["User"])
 app.include_router(predict.router)
+app.include_router(verify.router)
+app.include_router(vendors.router)
+app.include_router(parts.router)
 
 @app.get("/")
 def root():

@@ -12,11 +12,11 @@ const handleTabChange = (tab: string) => {
   setSelectedTab(tab);
 
   // map tab name to correct route
-  const routeMap: Record<string, "/dashboard" | "/search" | "/parts" | "/cart" | "/account"> = {
+  const routeMap: Record<string, "/dashboard" | "/search" | "/parts" | "/vendor" | "/account"> = {
     Dashboard: "/dashboard",
     Search: "/search",
     Parts: "/parts",
-    Cart: "/cart",
+    Vendor: "/vendor",
     Account: "/account",
   };
 
