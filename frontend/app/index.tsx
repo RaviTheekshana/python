@@ -61,6 +61,9 @@ const handleLogin = async () => {
     
   if (response.data.access_token) {  // check the token instead of success
     await AsyncStorage.setItem("token", response.data.access_token);
+    if (response.data.role) {
+      await AsyncStorage.setItem("role", response.data.role);
+    }
     router.push("./dashboard");
   } else {
     Alert.alert("Error", "Login failed");

@@ -10,6 +10,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { API_URL } from "@/config/env";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   CameraIcon,
   ArrowUpTrayIcon,
@@ -25,6 +26,17 @@ const router = useRouter();
 
 type VerifyResponse = {
   success: boolean;
+  scan?: {
+    id: number;
+    yolo_label: string;
+    yolo_conf: number;
+    bbox?: number[];
+    verification_status: "pending" | "verified";
+    authenticity?: string | null;
+    corrected_label?: string | null;
+    risk?: any;
+    effnet?: any;
+  };
   yolo?: { label: string; confidence: number; bbox?: number[] };
   effnet?: { label: string; confidence: number; top5?: { label: string; confidence: number }[] };
   risk?: { level: "LOW" | "MEDIUM" | "HIGH" | "UNSURE"; score: number; reason: string };
@@ -36,11 +48,15 @@ export default function Search() {
   const initialPhoto = Array.isArray(params.photo) ? params.photo[0] : params.photo;
   const initialPrediction = Array.isArray(params.prediction) ? params.prediction[0] : params.prediction;
   const initialConfidence = Array.isArray(params.confidence) ? params.confidence[0] : params.confidence;
+  const initialVerification = Array.isArray(params.verification_status) ? params.verification_status[0] : params.verification_status;
+  const initialAuthenticity = Array.isArray(params.authenticity) ? params.authenticity[0] : params.authenticity;
 
   const [photo, setPhoto] = useState<string | null>(initialPhoto ?? null);
   const [prediction, setPrediction] = useState<string | null>(initialPrediction || null);
   const [confidence, setConfidence] = useState<string | null>(initialConfidence || null);
   const [isUploading, setIsUploading] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(initialVerification || null);
+  const [authenticity, setAuthenticity] = useState<string | null>(initialAuthenticity || null);
 
   // ✅ Verify state
   const [isVerifying, setIsVerifying] = useState(false);
@@ -99,20 +115,30 @@ export default function Search() {
       setPrediction(null);
       setConfidence(null);
 
+      setVerificationStatus(null);
+      setAuthenticity(null);
+
       // reset verify state on new scan/upload
       setVerifyData(null);
       setIsVerifying(false);
 
       const form = buildFormData(uri);
 
-      const r = await axios.post(`${API_URL}/predict`, form, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const token = await AsyncStorage.getItem("token");
+      const r = await axios.post(`${API_URL}/scan`, form, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         timeout: 60000,
       });
 
       if (r.data?.success) {
-        setPrediction(r.data.part);
-        setConfidence(String(r.data.confidence));
+        const scan = r.data?.scan;
+        setPrediction(scan?.yolo_label || "");
+        setConfidence(String(scan?.yolo_conf ?? ""));
+        setVerificationStatus(scan?.verification_status || "pending");
+        setAuthenticity(scan?.authenticity || null);
       } else {
         alert(r.data?.message || "No part detected.");
       }
@@ -124,27 +150,27 @@ export default function Search() {
     }
   };
 
+  // For demo: re-call /scan (returns effnet + risk) rather than separate /verify
   const verifyRisk = async () => {
     if (!photo) return;
     try {
       setIsVerifying(true);
       setVerifyData(null);
 
+      const token = await AsyncStorage.getItem("token");
       const form = buildFormData(photo);
 
       const r = await axios.post(`${API_URL}/verify`, form, {
         headers: { "Content-Type": "multipart/form-data" },
         timeout: 60000,
       });
-
       const data = r.data as VerifyResponse;
+      setVerifyData(data);
 
-      if (data?.success) {
-        setVerifyData(data);
-      } else {
-        alert(data?.message || "Verification failed.");
-        setVerifyData(data);
-      }
+      // Also update verification status if it was verified already
+      const scan = (data as any)?.scan;
+      if (scan?.verification_status) setVerificationStatus(scan.verification_status);
+      if (scan?.authenticity) setAuthenticity(scan.authenticity);
     } catch (e: any) {
       console.log("Verify error:", e?.response?.data || e?.message || e);
       alert("Risk Check failed. Check API_URL/back-end.");
@@ -224,6 +250,16 @@ export default function Search() {
               <Text className="text-white text-lg font-extrabold">{prediction}</Text>
               <Text className="text-gray-400 mt-1">Confidence: {confidence ?? "-"}</Text>
 
+              {/* Verification status from CMS */}
+              {!!verificationStatus && (
+                <View className="mt-2 px-3 py-1 rounded-full bg-white/10">
+                  <Text className="text-gray-200">
+                    Status: {verificationStatus === "verified" ? "Verified" : "Pending"}
+                    {authenticity ? ` • ${authenticity}` : ""}
+                  </Text>
+                </View>
+              )}
+
               {/* Verify button */}
               <TouchableOpacity
                 onPress={verifyRisk}
@@ -263,17 +299,17 @@ export default function Search() {
                 <View className="mt-4 w-full bg-gray-900 border border-gray-700 rounded-2xl p-4">
                   <View className="flex-row items-center justify-between">
                     <Text className="text-white font-extrabold text-base">Risk Result</Text>
-                    {riskBadge(verifyData.risk?.level)}
+                    {riskBadge((verifyData as any)?.scan?.risk?.level || verifyData.risk?.level)}
                   </View>
 
                   <View className="mt-3">
                     <Text className="text-gray-300">
                       <Text className="font-bold text-white">EfficientNet:</Text>{" "}
-                      {verifyData.effnet?.label} (conf: {verifyData.effnet?.confidence})
+                      {((verifyData as any)?.scan?.effnet?.label || verifyData.effnet?.label)} (conf: {((verifyData as any)?.scan?.effnet?.confidence || verifyData.effnet?.confidence)})
                     </Text>
 
                     <Text className="text-gray-300 mt-2">
-                      <Text className="font-bold text-white">Reason:</Text> {verifyData.risk?.reason}
+                      <Text className="font-bold text-white">Reason:</Text> {((verifyData as any)?.scan?.risk?.reason || verifyData.risk?.reason)}
                     </Text>
                   </View>
                 </View>

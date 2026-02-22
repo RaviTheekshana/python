@@ -118,6 +118,7 @@ export default function Account() {
 
   const logout = async () => {
     await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("role");
     router.replace("/");
   };
 

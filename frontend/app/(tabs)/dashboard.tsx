@@ -111,14 +111,21 @@ export default function Dashboard() {
       const formData = new FormData();
       formData.append("file", { uri, name: filename, type } as any);
 
-      const r = await axios.post(`${API_URL}/predict`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const token = await AsyncStorage.getItem("token");
+      const r = await axios.post(`${API_URL}/scan`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         timeout: 60000,
       });
 
       const success = r.data?.success;
-      const prediction = r.data?.part ?? "";
-      const confidence = r.data?.confidence ?? "";
+      const scan = r.data?.scan;
+      const prediction = scan?.yolo_label ?? "";
+      const confidence = scan?.yolo_conf ?? "";
+      const verification_status = scan?.verification_status ?? "pending";
+      const authenticity = scan?.authenticity ?? "";
 
       // Go to /search with results (even if no detection, still pass photo)
       router.push({
@@ -127,6 +134,8 @@ export default function Dashboard() {
           photo: uri,
           prediction: success ? String(prediction) : "",
           confidence: success ? String(confidence) : "",
+          verification_status: String(verification_status),
+          authenticity: String(authenticity),
           // you can also pass a flag if you want to show a toast there
         },
       });

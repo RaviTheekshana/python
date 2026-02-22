@@ -1,7 +1,8 @@
 from app.database.session import Base
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, UniqueConstraint, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, UniqueConstraint, DateTime, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+import json
 
 class User(Base):
     __tablename__ = "users"
@@ -11,7 +12,57 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     phone = Column(String(20), index=True)
     password = Column(String(100), nullable=False)
+    # "user" | "admin" (demo) | "vendor_admin" (optional)
+    role = Column(String(30), nullable=False, default="user")
     created_at = Column(DateTime, server_default=func.now())
+
+
+class Scan(Base):
+    __tablename__ = "scans"
+
+    id = Column(Integer, primary_key=True, index=True)
+    image_path = Column(String(255), nullable=False)
+    image_hash = Column(String(128), unique=True, index=True, nullable=False)
+
+    yolo_label = Column(String(120), nullable=False)
+    yolo_conf = Column(Float, nullable=False)
+    # store bbox as JSON string: [x1,y1,x2,y2]
+    bbox_json = Column(String(255), nullable=False)
+
+    eff_label = Column(String(120), nullable=True)
+    eff_conf = Column(Float, nullable=True)
+    risk_level = Column(String(30), nullable=True)
+
+    created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+    verification = relationship("ScanVerification", back_populates="scan", uselist=False, cascade="all, delete-orphan")
+
+    def bbox(self):
+        try:
+            return json.loads(self.bbox_json)
+        except Exception:
+            return None
+
+
+class ScanVerification(Base):
+    __tablename__ = "scan_verifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    scan_id = Column(Integer, ForeignKey("scans.id"), unique=True, nullable=False, index=True)
+
+    # label correctness + correction
+    is_label_correct = Column(Boolean, nullable=False, default=True)
+    corrected_label = Column(String(120), nullable=True)
+
+    # counterfeit status chosen by admin
+    # "genuine" | "fake" | "low_fake" | "unknown"
+    authenticity = Column(String(30), nullable=False, default="unknown")
+
+    verified_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    verified_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    scan = relationship("Scan", back_populates="verification")
 
 class Vendor(Base):
     __tablename__ = "vendors"

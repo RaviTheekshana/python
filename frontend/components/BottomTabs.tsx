@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
-const bottomTabs = [
+const baseTabs = [
   { name: "Dashboard", icon: "🏠" },
   { name: "Search", icon: "🔍" },
   { name: "Parts", icon: "🔧" },
@@ -9,11 +9,15 @@ const bottomTabs = [
   { name: "Account", icon: "👤" },
 ];
 
+const adminTab = { name: "Admin", icon: "🛡️" };
 
-export default function BottomTabs({ selectedTab, setSelectedTab }: { 
+
+export default function BottomTabs({ selectedTab, setSelectedTab, isAdmin }: { 
   selectedTab: string; 
   setSelectedTab: (tab: string) => void; 
+  isAdmin?: boolean;
 }) {
+  const bottomTabs = isAdmin ? [...baseTabs.slice(0, 4), adminTab, baseTabs[4]] : baseTabs;
   return (
     <View className="bg-gray-800 px-6 py-3 shadow-2xl">
       <View className="flex-row justify-between items-center">
