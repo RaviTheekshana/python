@@ -1,5 +1,5 @@
 from app.database.session import Base
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, UniqueConstraint, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text, UniqueConstraint, DateTime, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import json
@@ -12,7 +12,6 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     phone = Column(String(20), index=True)
     password = Column(String(100), nullable=False)
-    # "user" | "admin" (demo) | "vendor_admin" (optional)
     role = Column(String(30), nullable=False, default="user")
     created_at = Column(DateTime, server_default=func.now())
 
@@ -104,3 +103,31 @@ class VendorInventory(Base):
 
     vendor = relationship("Vendor", back_populates="inventory")
     part = relationship("Part", back_populates="inventory")
+    
+class ScanRecord(Base):
+    __tablename__ = "scan_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    user_email = Column(String(255), nullable=True, index=True)
+
+    # model outputs
+    yolo_label = Column(String(120), nullable=False, index=True)
+    yolo_conf = Column(Float, nullable=False)
+
+    eff_label = Column(String(120), nullable=True)
+    eff_conf = Column(Float, nullable=True)
+
+    risk_level = Column(String(20), nullable=True)
+    risk_score = Column(Float, nullable=True)
+
+    # similarity
+    phash = Column(String(16), nullable=False, index=True)  # 64-bit hex
+
+    # human review (admin)
+    verified_status = Column(String(20), nullable=True)  # "REAL" | "FAKE" | "SUSPECT" | "UNKNOWN"
+    verified_by = Column(String(255), nullable=True)
+    verified_note = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, server_default=func.now())
+    verified_at = Column(DateTime, nullable=True)

@@ -10,7 +10,7 @@ from app.core.security import get_current_user, verify_password, get_password_ha
 
 router = APIRouter(tags=["User"])
 
-@router.get("/user/me", response_model=UserOut)
+@router.get("/user", response_model=UserOut)
 def get_me(current_user: User = Depends(get_current_user)):
     # email is read-only by design
     return current_user

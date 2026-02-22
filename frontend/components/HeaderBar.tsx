@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Bars3Icon, ArrowLeftEndOnRectangleIcon } from "react-native-heroicons/outline";
+import LanguageToggle from "@/components/LanguageToggle";
+import { useLanguage } from "@/context/LanguageContext";
+import { loadLanguage, t } from "@/i18n";
 
 type HeaderProps = {
   user: { name: string; email?: string } | null;
@@ -9,24 +12,23 @@ type HeaderProps = {
 };
 
 export default function Header({ user, photo, onLogout }: HeaderProps) {
+  const { version } = useLanguage();
   return (
     <View className="bg-gray-800 pt-12 pb-6 px-6 shadow-lg">
       {/* Top Row */}
       <View className="flex-row items-center justify-between mb-6">
         <Text className="text-white text-2xl font-bold">PartPal</Text>
-        <TouchableOpacity className="p-2">
-          <Bars3Icon size={24} color="white" />
-        </TouchableOpacity>
+          <LanguageToggle />
       </View>
 
       {/* User Welcome Row */}
       <View className="flex-row items-center justify-between">
         <View className="flex-1">
           <Text className="text-white text-2xl font-bold">
-            Hello, {user?.name || "User Name"}!
+            {t("header.hello", { name: user?.name || "User" })}
           </Text>
           <Text className="text-gray-300 text-base mt-1">
-            Your Dashboard at a Glance
+            {t("header.subtitle")}
           </Text>
         </View>
         <View className="flex-row items-center space-x-3">

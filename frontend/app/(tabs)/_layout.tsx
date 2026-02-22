@@ -1,4 +1,4 @@
-import { Stack, useRouter } from "expo-router";
+import { Slot, Stack, useRouter } from "expo-router";
 import { useState, useEffect } from "react";
 import { View } from "react-native";
 import BottomTabs from "@/components/BottomTabs";
@@ -13,7 +13,6 @@ export default function TabsLayout() {
 const handleTabChange = (tab: string) => {
   setSelectedTab(tab);
 
-  // map tab name to correct route
   const routeMap: Record<string, "/dashboard" | "/search" | "/parts" | "/vendor" | "/account" | "/admin"> = {
     Dashboard: "/dashboard",
     Search: "/search",

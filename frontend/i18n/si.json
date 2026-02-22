@@ -1,0 +1,58 @@
+{
+  "header": {
+    "hello": "හෙලෝ, %{name}!",
+    "subtitle": "ඔබගේ ඩෑෂ්බෝඩ් සාරාංශය"
+  },
+  "dashboard": {
+    "scan": "පාර්ට් ස්කෑන් කරන්න",
+    "history": "ඇණවුම් ඉතිහාසය",
+    "catalog": "කැටලොග් බලන්න",
+    "messages": "පණිවිඩ",
+    "settings": "සැකසුම්"
+  },
+  "scan": {
+    "scanning": "ස්කෑන් කරමින්..."
+  },
+  "common": {
+    "logout": "පිටවීම"
+  },
+  "status": {
+    "verified": "තහවුරු කළා",
+    "pending": "අපේක්ෂාවෙන්"
+  },
+  "risk": {
+    "low": "අඩු අවදානම",
+    "medium": "මධ්‍යම",
+    "high": "ඉහළ අවදානම",
+    "unsure": "නොදැනේ"
+  },
+  "search": {
+    "alert_camera_permission": "කැමරා අවසරය අවශ්‍යයි.",
+    "alert_gallery_permission": "ගැලරි අවසරය අවශ්‍යයි.",
+    "alert_no_part": "පාර්ට් එකක් හඳුනාගැනීමට නොහැකි විය.",
+    "alert_prediction_failed": "අනුමානය අසාර්ථකයි. API_URL / backend පරීක්ෂා කරන්න.",
+    "alert_risk_failed": "Risk Check අසාර්ථකයි. API_URL / backend පරීක්ෂා කරන්න.",
+
+    "preview_placeholder": "ස්කෑන් කළ පින්තූරය මෙහි පෙන්වනු ඇත",
+    "detecting_part": "පාර්ට් හඳුනාගනිමින්...",
+    "confidence": "විශ්වාසය",
+    "status": "තත්ත්වය",
+
+    "verify_risk": "තහවුරු / අවදානම් පරීක්ෂාව",
+    "verifying": "තහවුරු කරමින්...",
+    "find_sellers": "විකුණුම්කරුවන් සොයන්න",
+
+    "running_verification": "තහවුරු කිරීමේ මොඩලය ධාවනය කරමින්...",
+    "risk_result": "අවදානම් ප්‍රතිඵලය",
+    "efficientnet": "EfficientNet",
+    "conf_short": "විශ්වාසය",
+    "reason": "හේතුව",
+
+    "verification_failed": "තහවුරු කිරීම අසාර්ථකයි",
+    "try_clearer": "වඩා පැහැදිලි පින්තූරයකින් නැවත උත්සාහ කරන්න.",
+
+    "camera": "කැමරා",
+    "upload": "අප්ලෝඩ්",
+    "history_title": "සෙවුම් ඉතිහාසය"
+  }
+}

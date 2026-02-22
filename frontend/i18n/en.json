@@ -1,0 +1,62 @@
+{
+    "lang": {
+      "english": "English",
+      "sinhala": "සිංහල"
+    },
+    "header": {
+    "hello": "Hello, %{name}!",
+    "subtitle": "Your Dashboard at a Glance"
+  },
+  "dashboard": {
+    "scan": "Scan Part",
+    "history": "Order History",
+    "catalog": "Browse Catalog",
+    "messages": "Messages",
+    "settings": "Settings"
+  },
+  "scan": {
+    "scanning": "Scanning..."
+  },
+  "common": {
+    "logout": "Logout"
+  },
+  "status": {
+    "verified": "Verified",
+    "pending": "Pending"
+  },
+  "risk": {
+    "low": "LOW RISK",
+    "medium": "MEDIUM",
+    "high": "HIGH RISK",
+    "unsure": "UNSURE"
+  },
+  "search": {
+    "alert_camera_permission": "Camera permission is required.",
+    "alert_gallery_permission": "Gallery permission is required.",
+    "alert_no_part": "No part detected.",
+    "alert_prediction_failed": "Prediction failed. Check API_URL/back-end.",
+    "alert_risk_failed": "Risk Check failed. Check API_URL/back-end.",
+
+    "preview_placeholder": "Scanned image will appear here",
+    "detecting_part": "Detecting part...",
+    "confidence": "Confidence",
+    "status": "Status",
+
+    "verify_risk": "Verify / Risk Check",
+    "verifying": "Verifying...",
+    "find_sellers": "Find Sellers",
+
+    "running_verification": "Running verification model...",
+    "risk_result": "Risk Result",
+    "efficientnet": "EfficientNet",
+    "conf_short": "conf",
+    "reason": "Reason",
+
+    "verification_failed": "Verification failed",
+    "try_clearer": "Try again with a clearer image.",
+
+    "camera": "Camera",
+    "upload": "Upload",
+    "history_title": "History of Searches"
+  }
+}

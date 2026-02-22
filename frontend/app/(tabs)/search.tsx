@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Pressable,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
@@ -17,33 +18,39 @@ import {
   PhotoIcon,
   ArrowRightOnRectangleIcon,
   ShieldCheckIcon,
+  TruckIcon,
 } from "react-native-heroicons/outline";
-import { useLocalSearchParams } from "expo-router";
-import { useRouter } from "expo-router";
-import { TruckIcon } from "react-native-heroicons/outline";
+import { useLocalSearchParams, useRouter } from "expo-router";
+
+import { t } from "@/i18n";
+import { useLanguage } from "@/context/LanguageContext";
 
 const router = useRouter();
 
 type VerifyResponse = {
   success: boolean;
-  scan?: {
-    id: number;
-    yolo_label: string;
-    yolo_conf: number;
-    bbox?: number[];
-    verification_status: "pending" | "verified";
-    authenticity?: string | null;
-    corrected_label?: string | null;
-    risk?: any;
-    effnet?: any;
-  };
+  scan_id?: number;
+
   yolo?: { label: string; confidence: number; bbox?: number[] };
   effnet?: { label: string; confidence: number; top5?: { label: string; confidence: number }[] };
   risk?: { level: "LOW" | "MEDIUM" | "HIGH" | "UNSURE"; score: number; reason: string };
+
+  match?: {
+    found: boolean;
+    distance?: number;
+    verified_status?: string | null;
+    verified_by?: string | null;
+    verified_at?: string | null;
+    verified_note?: string | null;
+    matched_scan_id?: number;
+  };
+
   message?: string;
 };
 
 export default function Search() {
+  const { version } = useLanguage();
+
   const params = useLocalSearchParams();
   const initialPhoto = Array.isArray(params.photo) ? params.photo[0] : params.photo;
   const initialPrediction = Array.isArray(params.prediction) ? params.prediction[0] : params.prediction;
@@ -58,14 +65,13 @@ export default function Search() {
   const [verificationStatus, setVerificationStatus] = useState<string | null>(initialVerification || null);
   const [authenticity, setAuthenticity] = useState<string | null>(initialAuthenticity || null);
 
-  // ✅ Verify state
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyData, setVerifyData] = useState<VerifyResponse | null>(null);
 
   const openCamera = async () => {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (perm.status !== "granted") {
-      alert("Camera permission is required.");
+      alert(t("search.alert_camera_permission"));
       return;
     }
     const res = await ImagePicker.launchCameraAsync({
@@ -83,7 +89,7 @@ export default function Search() {
   const pickImage = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (perm.status !== "granted") {
-      alert("Gallery permission is required.");
+      alert(t("search.alert_gallery_permission"));
       return;
     }
     const res = await ImagePicker.launchImageLibraryAsync({
@@ -114,20 +120,16 @@ export default function Search() {
       setIsUploading(true);
       setPrediction(null);
       setConfidence(null);
-
       setVerificationStatus(null);
       setAuthenticity(null);
-
-      // reset verify state on new scan/upload
       setVerifyData(null);
       setIsVerifying(false);
 
       const form = buildFormData(uri);
-
       const token = await AsyncStorage.getItem("token");
+
       const r = await axios.post(`${API_URL}/scan`, form, {
         headers: {
-          "Content-Type": "multipart/form-data",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         timeout: 60000,
@@ -140,44 +142,52 @@ export default function Search() {
         setVerificationStatus(scan?.verification_status || "pending");
         setAuthenticity(scan?.authenticity || null);
       } else {
-        alert(r.data?.message || "No part detected.");
+        alert(r.data?.message || t("search.alert_no_part"));
       }
     } catch (e: any) {
       console.log("Upload error:", e?.response?.data || e?.message || e);
-      alert("Prediction failed. Check API_URL/back-end.");
+      alert(t("search.alert_prediction_failed"));
     } finally {
       setIsUploading(false);
     }
   };
 
-  // For demo: re-call /scan (returns effnet + risk) rather than separate /verify
-  const verifyRisk = async () => {
-    if (!photo) return;
-    try {
-      setIsVerifying(true);
-      setVerifyData(null);
-
-      const token = await AsyncStorage.getItem("token");
-      const form = buildFormData(photo);
-
-      const r = await axios.post(`${API_URL}/verify`, form, {
-        headers: { "Content-Type": "multipart/form-data" },
-        timeout: 60000,
-      });
-      const data = r.data as VerifyResponse;
-      setVerifyData(data);
-
-      // Also update verification status if it was verified already
-      const scan = (data as any)?.scan;
-      if (scan?.verification_status) setVerificationStatus(scan.verification_status);
-      if (scan?.authenticity) setAuthenticity(scan.authenticity);
-    } catch (e: any) {
-      console.log("Verify error:", e?.response?.data || e?.message || e);
-      alert("Risk Check failed. Check API_URL/back-end.");
-    } finally {
-      setIsVerifying(false);
-    }
+    const logout = async () => {
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("role");
+    router.replace("/");
   };
+
+  const verifyRisk = async () => {
+  if (!photo) return;
+
+  try {
+    setIsVerifying(true);
+    setVerifyData(null);
+
+    const token = await AsyncStorage.getItem("token");
+    const form = buildFormData(photo);
+
+    const r = await axios.post(`${API_URL}/verify`, form, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      timeout: 60000,
+    });
+
+    const data = r.data as VerifyResponse;
+    setVerifyData(data);
+
+    const scan = (data as any)?.scan;
+    if (scan?.verification_status) setVerificationStatus(scan.verification_status);
+    if (scan?.authenticity) setAuthenticity(scan.authenticity);
+  } catch (e: any) {
+    console.log("Verify error:", e?.response?.data || e?.message || e);
+    alert(t("search.alert_risk_failed"));
+  } finally {
+    setIsVerifying(false);
+  }
+};
 
   const history = [
     {
@@ -202,13 +212,11 @@ export default function Search() {
 
   const riskBadge = (level?: string) => {
     if (!level) return null;
-
-    // Tailwind classes via NativeWind
     const base = "px-3 py-1 rounded-full";
-    if (level === "LOW") return <Text className={`${base} bg-green-600 text-white font-bold`}>LOW RISK</Text>;
-    if (level === "MEDIUM") return <Text className={`${base} bg-yellow-500 text-black font-bold`}>MEDIUM</Text>;
-    if (level === "HIGH") return <Text className={`${base} bg-red-600 text-white font-bold`}>HIGH RISK</Text>;
-    return <Text className={`${base} bg-gray-500 text-white font-bold`}>UNSURE</Text>;
+    if (level === "LOW") return <Text className={`${base} bg-green-600 text-white font-bold`}>{t("risk.low")}</Text>;
+    if (level === "MEDIUM") return <Text className={`${base} bg-yellow-500 text-black font-bold`}>{t("risk.medium")}</Text>;
+    if (level === "HIGH") return <Text className={`${base} bg-red-600 text-white font-bold`}>{t("risk.high")}</Text>;
+    return <Text className={`${base} bg-gray-500 text-white font-bold`}>{t("risk.unsure")}</Text>;
   };
 
   return (
@@ -217,10 +225,10 @@ export default function Search() {
       <View className="bg-gray-800 pt-12 px-6 shadow-lg">
         <View className="px-3 pt-4 pb-4 flex-row items-center justify-between">
           <Text className="text-white text-3xl font-extrabold">PartPal</Text>
-          <View className="flex-row items-center">
-            <ArrowRightOnRectangleIcon size={22} color="#9CA3AF" />
-            <Text className="text-gray-300 ml-2">Logout</Text>
-          </View>
+          <Pressable onPress={logout} className="flex-row items-center">
+              <ArrowRightOnRectangleIcon size={22} color="#9CA3AF" />
+              <Text className="text-gray-300 ml-2">{t("common.logout")}</Text>
+          </Pressable>
         </View>
       </View>
 
@@ -230,7 +238,7 @@ export default function Search() {
           {!photo ? (
             <View className="h-60 rounded-2xl border border-gray-700 border-dashed items-center justify-center">
               <PhotoIcon size={56} color="#9CA3AF" />
-              <Text className="text-gray-400 mt-3">Scanned image will appear here</Text>
+              <Text className="text-gray-400 mt-3">{t("search.preview_placeholder")}</Text>
             </View>
           ) : (
             <Image source={{ uri: photo }} className="h-60 rounded-2xl" resizeMode="cover" />
@@ -240,7 +248,7 @@ export default function Search() {
           {isUploading && (
             <View className="items-center mt-3">
               <ActivityIndicator size="large" color="#ffffff" />
-              <Text className="text-gray-400 mt-2">Detecting part...</Text>
+              <Text className="text-gray-400 mt-2">{t("search.detecting_part")}</Text>
             </View>
           )}
 
@@ -248,13 +256,16 @@ export default function Search() {
           {prediction && !isUploading && (
             <View className="items-center mt-4">
               <Text className="text-white text-lg font-extrabold">{prediction}</Text>
-              <Text className="text-gray-400 mt-1">Confidence: {confidence ?? "-"}</Text>
+              <Text className="text-gray-400 mt-1">
+                {t("search.confidence")}: {confidence ?? "-"}
+              </Text>
 
               {/* Verification status from CMS */}
               {!!verificationStatus && (
                 <View className="mt-2 px-3 py-1 rounded-full bg-white/10">
                   <Text className="text-gray-200">
-                    Status: {verificationStatus === "verified" ? "Verified" : "Pending"}
+                    {t("search.status")}:{" "}
+                    {verificationStatus === "verified" ? t("status.verified") : t("status.pending")}
                     {authenticity ? ` • ${authenticity}` : ""}
                   </Text>
                 </View>
@@ -269,10 +280,11 @@ export default function Search() {
                 <View className="flex-row items-center">
                   <ShieldCheckIcon size={22} color="#fff" />
                   <Text className="text-white font-semibold text-base ml-2">
-                    {isVerifying ? "Verifying..." : "Verify / Risk Check"}
+                    {isVerifying ? t("search.verifying") : t("search.verify_risk")}
                   </Text>
                 </View>
               </TouchableOpacity>
+
               {/* Find Sellers button */}
               <TouchableOpacity
                 onPress={() => router.push({ pathname: "/(tabs)/parts", params: { part: prediction! } })}
@@ -281,7 +293,7 @@ export default function Search() {
                 <View className="flex-row items-center">
                   <TruckIcon size={22} color="#111827" />
                   <Text className="text-gray-900 font-extrabold text-base ml-2">
-                    Find Sellers
+                    {t("search.find_sellers")}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -290,7 +302,7 @@ export default function Search() {
               {isVerifying && (
                 <View className="items-center mt-3">
                   <ActivityIndicator size="small" color="#ffffff" />
-                  <Text className="text-gray-400 mt-2">Running verification model...</Text>
+                  <Text className="text-gray-400 mt-2">{t("search.running_verification")}</Text>
                 </View>
               )}
 
@@ -298,18 +310,20 @@ export default function Search() {
               {verifyData?.success && (
                 <View className="mt-4 w-full bg-gray-900 border border-gray-700 rounded-2xl p-4">
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-white font-extrabold text-base">Risk Result</Text>
+                    <Text className="text-white font-extrabold text-base">{t("search.risk_result")}</Text>
                     {riskBadge((verifyData as any)?.scan?.risk?.level || verifyData.risk?.level)}
                   </View>
 
                   <View className="mt-3">
                     <Text className="text-gray-300">
-                      <Text className="font-bold text-white">EfficientNet:</Text>{" "}
-                      {((verifyData as any)?.scan?.effnet?.label || verifyData.effnet?.label)} (conf: {((verifyData as any)?.scan?.effnet?.confidence || verifyData.effnet?.confidence)})
+                      <Text className="font-bold text-white">{t("search.efficientnet")}:</Text>{" "}
+                      {((verifyData as any)?.scan?.effnet?.label || verifyData.effnet?.label)}{" "}
+                      ({t("search.conf_short")}: {((verifyData as any)?.scan?.effnet?.confidence || verifyData.effnet?.confidence)})
                     </Text>
 
                     <Text className="text-gray-300 mt-2">
-                      <Text className="font-bold text-white">Reason:</Text> {((verifyData as any)?.scan?.risk?.reason || verifyData.risk?.reason)}
+                      <Text className="font-bold text-white">{t("search.reason")}:</Text>{" "}
+                      {((verifyData as any)?.scan?.risk?.reason || verifyData.risk?.reason)}
                     </Text>
                   </View>
                 </View>
@@ -318,10 +332,42 @@ export default function Search() {
               {/* Verify failed */}
               {verifyData && !verifyData.success && (
                 <View className="mt-4 w-full bg-gray-900 border border-gray-700 rounded-2xl p-4">
-                  <Text className="text-red-400 font-bold">Verification failed</Text>
-                  <Text className="text-gray-300 mt-2">{verifyData.message || "Try again with a clearer image."}</Text>
+                  <Text className="text-red-400 font-bold">{t("search.verification_failed")}</Text>
+                  <Text className="text-gray-300 mt-2">
+                    {verifyData.message || t("search.try_clearer")}
+                  </Text>
                 </View>
               )}
+              {verifyData?.match?.found ? (
+                <View className="mt-4 bg-gray-700 rounded-2xl p-4">
+                  <Text className="text-white font-bold text-lg">✅ Similar Scan Found</Text>
+                  <Text className="text-gray-200 mt-1">
+                    Similarity distance: {verifyData.match.distance}
+                  </Text>
+                  <Text className="text-gray-200 mt-1">
+                    Verified status:{" "}
+                    <Text className="text-white font-extrabold">
+                      {verifyData.match.verified_status ?? "NOT REVIEWED YET"}
+                    </Text>
+                  </Text>
+                  {verifyData.match.verified_by ? (
+                    <Text className="text-gray-300 mt-1">
+                      Verified by: {verifyData.match.verified_by}
+                    </Text>
+                  ) : null}
+                  {verifyData.match.verified_note ? (
+                    <Text className="text-gray-300 mt-1">
+                      Note: {verifyData.match.verified_note}
+                    </Text>
+                  ) : null}
+                </View>
+                ) : verifyData ? (
+                <View className="mt-4 bg-gray-800 rounded-2xl p-4 border border-gray-700">
+                  <Text className="text-gray-200">
+                    No similar verified scan found yet. (Admin can review this scan later.)
+                  </Text>
+                </View>
+                ) : null}
             </View>
           )}
         </View>
@@ -331,7 +377,7 @@ export default function Search() {
           <TouchableOpacity onPress={openCamera} className="flex-1 bg-blue-600 py-4 rounded-2xl mr-3 items-center">
             <View className="flex-row items-center">
               <CameraIcon size={22} color="#fff" />
-              <Text className="text-white font-semibold text-base ml-2">Camera</Text>
+              <Text className="text-white font-semibold text-base ml-2">{t("search.camera")}</Text>
             </View>
           </TouchableOpacity>
 
@@ -341,14 +387,14 @@ export default function Search() {
           >
             <View className="flex-row items-center">
               <ArrowUpTrayIcon size={22} color="#fff" />
-              <Text className="text-white font-semibold text-base ml-2">Upload</Text>
+              <Text className="text-white font-semibold text-base ml-2">{t("search.upload")}</Text>
             </View>
           </TouchableOpacity>
         </View>
 
         {/* History */}
         <View className="mx-6 mt-8">
-          <Text className="text-white text-xl font-bold mb-4">History of Searches</Text>
+          <Text className="text-white text-xl font-bold mb-4">{t("search.history_title")}</Text>
 
           {history.map((h) => (
             <View key={h.id} className="bg-gray-800 rounded-2xl p-4 mb-4 flex-row items-center">

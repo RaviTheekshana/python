@@ -23,6 +23,8 @@ def create_access_token(data: dict):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+# Optional token (lets public endpoints accept requests without Authorization header)
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
@@ -45,6 +47,23 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials"
         )
+
+
+def get_current_user_optional(token: str | None = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)):
+    """Return the current user if a valid Bearer token is provided, otherwise None.
+
+    Useful for endpoints like /verify where authentication is not required.
+    """
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str | None = payload.get("sub")
+        if not email:
+            return None
+        return db.query(models.User).filter(models.User.email == email).first()
+    except Exception:
+        return None
 
 
 def require_admin(current_user: models.User = Depends(get_current_user)):

@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { API_URL } from '@/config/env';
 import * as ImagePicker from "expo-image-picker";
 import Header from "@/components/HeaderBar";
+import { loadLanguage, t } from "../../i18n";
 import {
   View,
   ActivityIndicator,
@@ -29,6 +30,7 @@ import {
   ShoppingCartIcon,
   ChevronRightIcon,
 } from "react-native-heroicons/outline";
+import { useLanguage } from "@/context/LanguageContext";
 
 const { width } = Dimensions.get('window');
 
@@ -127,7 +129,6 @@ export default function Dashboard() {
       const verification_status = scan?.verification_status ?? "pending";
       const authenticity = scan?.authenticity ?? "";
 
-      // Go to /search with results (even if no detection, still pass photo)
       router.push({
         pathname: "/search",
         params: {
@@ -136,7 +137,6 @@ export default function Dashboard() {
           confidence: success ? String(confidence) : "",
           verification_status: String(verification_status),
           authenticity: String(authenticity),
-          // you can also pass a flag if you want to show a toast there
         },
       });
     } catch (e) {
@@ -145,7 +145,7 @@ export default function Dashboard() {
       setIsUploading(false);
     }
   };
-
+  const { version } = useLanguage();
 
   if (loading) {
     return (
@@ -158,25 +158,25 @@ export default function Dashboard() {
   const dashboardCards = [
     {
       id: 1,
-      title: 'Scan Part',
+      titleKey: 'dashboard.scan',
       icon: <QrCodeIcon size={32} color="#F7F4EA" />,
       onPress: openCamera,
     },
     {
       id: 2,
-      title: 'Order History',
+      titleKey: 'dashboard.history',
       icon: <ClockIcon size={32} color="#F75270" />,
       onPress: () => console.log('Order History'),
     },
     {
       id: 3,
-      title: 'Browse Catalog',
+      titleKey: 'dashboard.catalog',
       icon: <BookOpenIcon size={32} color="green" />,
       onPress: () => console.log('Browse Catalog'),
     },
     {
       id: 4,
-      title: 'Messages',
+      titleKey: 'dashboard.messages',
       icon: <ChatBubbleLeftRightIcon size={32} color="orange" />,
       onPress: () => console.log('Messages'),
     },
@@ -260,7 +260,7 @@ export default function Dashboard() {
                     {card.icon}
                   </View>
                   <Text className="text-white text-base font-semibold text-center">
-                    {card.title}
+                    {t(card.titleKey)}
                   </Text>
                 </View>
               </TouchableOpacity>
