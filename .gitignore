@@ -17,6 +17,7 @@ backend/*.pyc
 backend/*.pyo
 backend/*.pyd
 backend/.env
+backend/app/uploads/*
 backend/users.db           # SQLite database
 backend/*.log
 backend/alembic/versions/  # optional: ignore migrations if you want (or keep if you want versioned migrations)

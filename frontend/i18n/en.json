@@ -18,7 +18,14 @@
     "scanning": "Scanning..."
   },
   "common": {
-    "logout": "Logout"
+    "logout": "Logout",
+    "error": "Error",
+    "saved": "Saved",
+    "saving": "Saving...",
+    "updating": "Updating...",
+    "on": "ON",
+    "off": "OFF",
+    "loading": "Loading..."
   },
   "status": {
     "verified": "Verified",
@@ -58,5 +65,74 @@
     "camera": "Camera",
     "upload": "Upload",
     "history_title": "History of Searches"
+  },
+  "account": {
+    "login_required_title": "Login required",
+    "login_required_msg": "Please login again.",
+    "load_profile_failed": "Failed to load profile",
+    "update_profile_failed": "Failed to update profile",
+    "update_password_failed": "Failed to update password",
+
+    "profile_updated": "Profile updated successfully.",
+
+    "missing_fields_title": "Missing fields",
+    "missing_fields_msg": "Please fill all password fields.",
+    "weak_password_title": "Weak password",
+    "weak_password_msg": "New password must be at least 6 characters.",
+    "mismatch_title": "Mismatch",
+    "mismatch_msg": "New password and confirm password do not match.",
+
+    "password_success_title": "Success",
+    "password_success_msg": "Password updated successfully.",
+
+    "loading_account": "Loading account...",
+
+    "settings_title": "Account Settings",
+    "settings_subtitle": "Update your name and phone number.",
+
+    "email_label": "Email (cannot be changed)",
+    "name_label": "Name",
+    "phone_label": "Phone",
+
+    "name_placeholder": "Your name",
+    "phone_placeholder": "07X XXX XXXX",
+
+    "save_changes": "Save Changes",
+
+    "change_password_title": "Change Password",
+    "change_password_subtitle": "For your security, use a strong password.",
+
+    "current_password_label": "Current password",
+    "new_password_label": "New password",
+    "confirm_password_label": "Confirm new password",
+
+    "password_mask": "••••••••",
+    "new_password_placeholder": "At least 6 characters",
+    "confirm_password_placeholder": "Re-type new password",
+
+    "update_password": "Update Password",
+
+    "about_title": "About PartPal",
+    "about_body": "PartPal is a smart spare-parts assistant that helps users identify car parts using AI. It supports part detection (YOLO) and verification/risk checking (EfficientNet), and provides seller recommendations with price comparison.",
+    "rights": "PartPal. All rights reserved."
+  },
+  "vendors": {
+    "title": "Vendors",
+    "region": "Western Province",
+    "in_stock": "In-stock",
+    "gps": "GPS",
+    "find_sellers": "Find Sellers",
+    "getting_location": "Getting your location...",
+    "currency": "LKR",
+    "stock": "Stock",
+    "call_vendor": "Call Vendor",
+    "empty_hint": "No sellers yet. Select a part and tap “Find Sellers”.",
+
+    "select_part_title": "Select a part",
+    "select_part_msg": "Choose a part from dropdown first.",
+    "no_sellers_title": "No sellers",
+    "no_sellers_msg": "No sellers found.",
+    "api_error_title": "API Error",
+    "api_error_msg": "Failed to load sellers."
   }
 }

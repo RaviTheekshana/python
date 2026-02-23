@@ -14,7 +14,14 @@
     "scanning": "ස්කෑන් කරමින්..."
   },
   "common": {
-    "logout": "පිටවීම"
+    "logout": "පිටවීම",
+    "error": "දෝෂයකි",
+    "saved": "සුරක්ෂිතයි",
+    "saving": "සුරක්ෂිත කරමින්...",
+    "updating": "යාවත්කාලීන කරමින්...",
+    "on": "ON",
+    "off": "OFF",
+    "loading": "ලෝඩ් කරමින්..."
   },
   "status": {
     "verified": "තහවුරු කළා",
@@ -54,5 +61,74 @@
     "camera": "කැමරා",
     "upload": "අප්ලෝඩ්",
     "history_title": "සෙවුම් ඉතිහාසය"
+  },
+  "account": {
+    "login_required_title": "ලොග් ඉන් අවශ්‍යයි",
+    "login_required_msg": "කරුණාකර නැවත ලොග් ඉන් වන්න.",
+    "load_profile_failed": "ප්‍රොෆයිල් ලෝඩ් කිරීම අසාර්ථකයි",
+    "update_profile_failed": "ප්‍රොෆයිල් යාවත්කාලීන කිරීම අසාර්ථකයි",
+    "update_password_failed": "මුරපදය යාවත්කාලීන කිරීම අසාර්ථකයි",
+
+    "profile_updated": "ප්‍රොෆයිල් සාර්ථකව යාවත්කාලීන විය.",
+
+    "missing_fields_title": "ක්ෂේත්‍ර හිස්",
+    "missing_fields_msg": "කරුණාකර සියලුම මුරපද ක්ෂේත්‍ර පුරවන්න.",
+    "weak_password_title": "දුර්වල මුරපදය",
+    "weak_password_msg": "නව මුරපදය අක්ෂර 6ක් හෝ වැඩි විය යුතුය.",
+    "mismatch_title": "අනුකූල නොවේ",
+    "mismatch_msg": "නව මුරපදය සහ තහවුරු මුරපදය එකිනෙකට නොගැළපේ.",
+
+    "password_success_title": "සාර්ථකයි",
+    "password_success_msg": "මුරපදය සාර්ථකව යාවත්කාලීන විය.",
+
+    "loading_account": "ගිණුම ලෝඩ් කරමින්...",
+
+    "settings_title": "ගිණුම් සැකසුම්",
+    "settings_subtitle": "ඔබගේ නම සහ දුරකථන අංකය යාවත්කාලීන කරන්න.",
+
+    "email_label": "ඊමේල් (වෙනස් කළ නොහැක)",
+    "name_label": "නම",
+    "phone_label": "දුරකථනය",
+
+    "name_placeholder": "ඔබගේ නම",
+    "phone_placeholder": "07X XXX XXXX",
+
+    "save_changes": "වෙනස්කම් සුරකින්න",
+
+    "change_password_title": "මුරපදය වෙනස් කරන්න",
+    "change_password_subtitle": "ඔබගේ ආරක්ෂාව සඳහා ශක්තිමත් මුරපදයක් භාවිතා කරන්න.",
+
+    "current_password_label": "දැනට තිබෙන මුරපදය",
+    "new_password_label": "නව මුරපදය",
+    "confirm_password_label": "නව මුරපදය තහවුරු කරන්න",
+
+    "password_mask": "••••••••",
+    "new_password_placeholder": "අඩුම වශයෙන් අක්ෂර 6ක්",
+    "confirm_password_placeholder": "නව මුරපදය නැවත ඇතුල් කරන්න",
+
+    "update_password": "මුරපදය යාවත්කාලීන කරන්න",
+
+    "about_title": "PartPal ගැන",
+    "about_body": "PartPal යනු AI භාවිතයෙන් කාර් පාර්ට් හඳුනාගැනීමට උදව් කරන ස්මාර්ට් spare-parts assistant එකකි. එය YOLO භාවිතයෙන් part detection සහ EfficientNet භාවිතයෙන් verification/risk checking කරයි. තවද මිල සංසන්දනය සහ විකිුණුම්කරුවන් සෙවීමද සපයයි.",
+    "rights": "PartPal. සියලු හිමිකම් ඇවිරිණි."
+  },
+    "vendors": {
+    "title": "විකුණුම්කරුවන්",
+    "region": "බස්නාහිර පළාත",
+    "in_stock": "ගබඩා ඇත",
+    "gps": "GPS",
+    "find_sellers": "විකුණුම්කරුවන් සොයන්න",
+    "getting_location": "ඔබගේ ස්ථානය ලබාගනිමින්...",
+    "currency": "රු",
+    "stock": "ගබඩා ප්‍රමාණය",
+    "call_vendor": "විකුණුම්කරු අමතන්න",
+    "empty_hint": "තවම විකුණුම්කරුවන් නොමැත. පාර්ට් එකක් තෝරා “විකුණුම්කරුවන් සොයන්න” ඔබන්න.",
+
+    "select_part_title": "පාර්ට් එකක් තෝරන්න",
+    "select_part_msg": "පළමුව dropdown එකෙන් පාර්ට් එකක් තෝරන්න.",
+    "no_sellers_title": "විකුණුම්කරුවන් නැත",
+    "no_sellers_msg": "විකුණුම්කරුවන් හමු නොවීය.",
+    "api_error_title": "API දෝෂය",
+    "api_error_msg": "විකුණුම්කරුවන් ලෝඩ් කිරීම අසාර්ථකයි."
   }
 }

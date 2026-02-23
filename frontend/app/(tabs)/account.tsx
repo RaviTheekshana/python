@@ -6,6 +6,9 @@ import { API_URL } from "@/config/env";
 import { useRouter } from "expo-router";
 import { ArrowRightOnRectangleIcon } from "react-native-heroicons/outline";
 
+import { t } from "@/i18n";
+import { useLanguage } from "@/context/LanguageContext";
+
 type Me = {
   id: number;
   email: string;
@@ -15,6 +18,9 @@ type Me = {
 
 export default function Account() {
   const router = useRouter();
+
+  // ✅ Force instant re-render on language change
+  const { version } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -39,7 +45,7 @@ export default function Account() {
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        Alert.alert("Login required", "Please login again.");
+        Alert.alert(t("account.login_required_title"), t("account.login_required_msg"));
         router.replace("/");
         return;
       }
@@ -53,7 +59,7 @@ export default function Account() {
       setName(data.name || "");
       setPhone(data.phone || "");
     } catch (e: any) {
-      Alert.alert("Error", e?.response?.data?.detail || e?.message || "Failed to load profile");
+      Alert.alert(t("common.error"), e?.response?.data?.detail || e?.message || t("account.load_profile_failed"));
     } finally {
       setLoading(false);
     }
@@ -72,9 +78,9 @@ export default function Account() {
       );
 
       setMe(res.data);
-      Alert.alert("Saved", "Profile updated successfully.");
+      Alert.alert(t("common.saved"), t("account.profile_updated"));
     } catch (e: any) {
-      Alert.alert("Error", e?.response?.data?.detail || e?.message || "Failed to update profile");
+      Alert.alert(t("common.error"), e?.response?.data?.detail || e?.message || t("account.update_profile_failed"));
     } finally {
       setSavingProfile(false);
     }
@@ -82,15 +88,15 @@ export default function Account() {
 
   const changePassword = async () => {
     if (!currentPw || !newPw || !confirmPw) {
-      Alert.alert("Missing fields", "Please fill all password fields.");
+      Alert.alert(t("account.missing_fields_title"), t("account.missing_fields_msg"));
       return;
     }
     if (newPw.length < 6) {
-      Alert.alert("Weak password", "New password must be at least 6 characters.");
+      Alert.alert(t("account.weak_password_title"), t("account.weak_password_msg"));
       return;
     }
     if (newPw !== confirmPw) {
-      Alert.alert("Mismatch", "New password and confirm password do not match.");
+      Alert.alert(t("account.mismatch_title"), t("account.mismatch_msg"));
       return;
     }
 
@@ -108,9 +114,9 @@ export default function Account() {
       setCurrentPw("");
       setNewPw("");
       setConfirmPw("");
-      Alert.alert("Success", "Password updated successfully.");
+      Alert.alert(t("account.password_success_title"), t("account.password_success_msg"));
     } catch (e: any) {
-      Alert.alert("Error", e?.response?.data?.detail || e?.message || "Failed to update password");
+      Alert.alert(t("common.error"), e?.response?.data?.detail || e?.message || t("account.update_password_failed"));
     } finally {
       setSavingPassword(false);
     }
@@ -135,7 +141,7 @@ export default function Account() {
 
           <Pressable onPress={logout} className="flex-row items-center">
             <ArrowRightOnRectangleIcon size={22} color="#9CA3AF" />
-            <Text className="text-gray-300 ml-2">Logout</Text>
+            <Text className="text-gray-300 ml-2">{t("common.logout")}</Text>
           </Pressable>
         </View>
       </View>
@@ -143,37 +149,37 @@ export default function Account() {
       {loading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color="#fff" />
-          <Text className="text-gray-400 mt-3">Loading account…</Text>
+          <Text className="text-gray-400 mt-3">{t("account.loading_account")}</Text>
         </View>
       ) : (
         <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 }}>
           {/* Profile card */}
           <View className="mx-6 mt-6 bg-gray-800 border border-gray-700 rounded-3xl p-5">
-            <Text className="text-white text-xl font-extrabold">Account Settings</Text>
-            <Text className="text-gray-400 mt-1">Update your name and phone number.</Text>
+            <Text className="text-white text-xl font-extrabold">{t("account.settings_title")}</Text>
+            <Text className="text-gray-400 mt-1">{t("account.settings_subtitle")}</Text>
 
             {/* Email readonly */}
-            <Text className="text-gray-300 font-bold mt-5">Email (cannot be changed)</Text>
+            <Text className="text-gray-300 font-bold mt-5">{t("account.email_label")}</Text>
             <View className="mt-2 bg-gray-900 border border-gray-700 rounded-2xl px-4 py-3">
               <Text className="text-gray-400">{me?.email || "-"}</Text>
             </View>
 
             {/* Name */}
-            <Text className="text-gray-300 font-bold mt-4">Name</Text>
+            <Text className="text-gray-300 font-bold mt-4">{t("account.name_label")}</Text>
             <TextInput
               value={name}
               onChangeText={setName}
-              placeholder="Your name"
+              placeholder={t("account.name_placeholder")}
               placeholderTextColor="#6B7280"
               className="mt-2 bg-gray-900 border border-gray-700 rounded-2xl px-4 py-3 text-white"
             />
 
             {/* Phone */}
-            <Text className="text-gray-300 font-bold mt-4">Phone</Text>
+            <Text className="text-gray-300 font-bold mt-4">{t("account.phone_label")}</Text>
             <TextInput
               value={phone}
               onChangeText={setPhone}
-              placeholder="07X XXX XXXX"
+              placeholder={t("account.phone_placeholder")}
               placeholderTextColor="#6B7280"
               keyboardType="phone-pad"
               className="mt-2 bg-gray-900 border border-gray-700 rounded-2xl px-4 py-3 text-white"
@@ -185,41 +191,41 @@ export default function Account() {
               className="mt-5 bg-yellow-500 py-4 rounded-2xl items-center"
             >
               <Text className="text-gray-900 font-extrabold">
-                {savingProfile ? "Saving..." : "Save Changes"}
+                {savingProfile ? t("common.saving") : t("account.save_changes")}
               </Text>
             </Pressable>
           </View>
 
           {/* Password card */}
           <View className="mx-6 mt-5 bg-gray-800 border border-gray-700 rounded-3xl p-5">
-            <Text className="text-white text-xl font-extrabold">Change Password</Text>
-            <Text className="text-gray-400 mt-1">For your security, use a strong password.</Text>
+            <Text className="text-white text-xl font-extrabold">{t("account.change_password_title")}</Text>
+            <Text className="text-gray-400 mt-1">{t("account.change_password_subtitle")}</Text>
 
-            <Text className="text-gray-300 font-bold mt-4">Current password</Text>
+            <Text className="text-gray-300 font-bold mt-4">{t("account.current_password_label")}</Text>
             <TextInput
               value={currentPw}
               onChangeText={setCurrentPw}
-              placeholder="••••••••"
+              placeholder={t("account.password_mask")}
               placeholderTextColor="#6B7280"
               secureTextEntry
               className="mt-2 bg-gray-900 border border-gray-700 rounded-2xl px-4 py-3 text-white"
             />
 
-            <Text className="text-gray-300 font-bold mt-4">New password</Text>
+            <Text className="text-gray-300 font-bold mt-4">{t("account.new_password_label")}</Text>
             <TextInput
               value={newPw}
               onChangeText={setNewPw}
-              placeholder="At least 6 characters"
+              placeholder={t("account.new_password_placeholder")}
               placeholderTextColor="#6B7280"
               secureTextEntry
               className="mt-2 bg-gray-900 border border-gray-700 rounded-2xl px-4 py-3 text-white"
             />
 
-            <Text className="text-gray-300 font-bold mt-4">Confirm new password</Text>
+            <Text className="text-gray-300 font-bold mt-4">{t("account.confirm_password_label")}</Text>
             <TextInput
               value={confirmPw}
               onChangeText={setConfirmPw}
-              placeholder="Re-type new password"
+              placeholder={t("account.confirm_password_placeholder")}
               placeholderTextColor="#6B7280"
               secureTextEntry
               className="mt-2 bg-gray-900 border border-gray-700 rounded-2xl px-4 py-3 text-white"
@@ -231,22 +237,20 @@ export default function Account() {
               className="mt-5 bg-gray-900 border border-gray-700 py-4 rounded-2xl items-center"
             >
               <Text className="text-white font-extrabold">
-                {savingPassword ? "Updating..." : "Update Password"}
+                {savingPassword ? t("common.updating") : t("account.update_password")}
               </Text>
             </Pressable>
           </View>
 
           {/* About card */}
           <View className="mx-6 mt-5 bg-gray-800 border border-gray-700 rounded-3xl p-5">
-            <Text className="text-white text-xl font-extrabold">About PartPal</Text>
+            <Text className="text-white text-xl font-extrabold">{t("account.about_title")}</Text>
             <Text className="text-gray-400 mt-2 leading-5">
-              PartPal is a smart spare-parts assistant that helps users identify car parts using AI.
-              It supports part detection (YOLO) and verification/risk checking (EfficientNet),
-              and provides seller recommendations with price comparison.
+              {t("account.about_body")}
             </Text>
 
             <Text className="text-gray-500 mt-4">
-              © {new Date().getFullYear()} PartPal. All rights reserved.
+              © {new Date().getFullYear()} {t("account.rights")}
             </Text>
           </View>
         </ScrollView>

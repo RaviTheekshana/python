@@ -1,4 +1,3 @@
-# backend/app/services/predict_service.py
 import io
 from PIL import Image
 from ultralytics import YOLO

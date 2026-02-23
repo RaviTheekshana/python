@@ -25,8 +25,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { t } from "@/i18n";
 import { useLanguage } from "@/context/LanguageContext";
 
-const router = useRouter();
-
 type VerifyResponse = {
   success: boolean;
   scan_id?: number;
@@ -49,6 +47,7 @@ type VerifyResponse = {
 };
 
 export default function Search() {
+  const router = useRouter();
   const { version } = useLanguage();
 
   const params = useLocalSearchParams();
@@ -338,36 +337,57 @@ export default function Search() {
                   </Text>
                 </View>
               )}
-              {verifyData?.match?.found ? (
-                <View className="mt-4 bg-gray-700 rounded-2xl p-4">
-                  <Text className="text-white font-bold text-lg">✅ Similar Scan Found</Text>
-                  <Text className="text-gray-200 mt-1">
-                    Similarity distance: {verifyData.match.distance}
-                  </Text>
-                  <Text className="text-gray-200 mt-1">
-                    Verified status:{" "}
-                    <Text className="text-white font-extrabold">
-                      {verifyData.match.verified_status ?? "NOT REVIEWED YET"}
-                    </Text>
-                  </Text>
-                  {verifyData.match.verified_by ? (
-                    <Text className="text-gray-300 mt-1">
-                      Verified by: {verifyData.match.verified_by}
-                    </Text>
-                  ) : null}
-                  {verifyData.match.verified_note ? (
-                    <Text className="text-gray-300 mt-1">
-                      Note: {verifyData.match.verified_note}
-                    </Text>
-                  ) : null}
-                </View>
-                ) : verifyData ? (
-                <View className="mt-4 bg-gray-800 rounded-2xl p-4 border border-gray-700">
-                  <Text className="text-gray-200">
-                    No similar verified scan found yet. (Admin can review this scan later.)
-                  </Text>
-                </View>
-                ) : null}
+              {verifyData && (
+  <View className="mt-4 w-full bg-gray-900 border border-gray-700 rounded-2xl p-4">
+    <Text className="text-white font-extrabold text-base">Similarity Match</Text>
+
+    {verifyData.match?.found ? (
+      <View className="mt-3">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-gray-200">✅ Similar scan found</Text>
+          <View className="px-3 py-1 rounded-full bg-white/10">
+            <Text className="text-gray-200">dist: {verifyData.match.distance ?? "-"}</Text>
+          </View>
+        </View>
+
+        <View className="mt-3 px-3 py-2 rounded-2xl bg-white/5 border border-white/10">
+          <Text className="text-gray-300">
+            <Text className="text-white font-bold">Status:</Text>{" "}
+            {verifyData.match.verified_status ? (
+              <Text className="text-white font-extrabold">{verifyData.match.verified_status}</Text>
+            ) : (
+              <Text className="text-yellow-300 font-bold">NOT VERIFIED</Text>
+            )}
+          </Text>
+
+          {!!verifyData.match.verified_by && (
+            <Text className="text-gray-400 mt-1">
+              Verified by: {verifyData.match.verified_by}
+            </Text>
+          )}
+
+          {!!verifyData.match.verified_at && (
+            <Text className="text-gray-400 mt-1">
+              Verified at: {verifyData.match.verified_at}
+            </Text>
+          )}
+
+          {!!verifyData.match.verified_note && (
+            <Text className="text-gray-300 mt-2">
+              Note: {verifyData.match.verified_note}
+            </Text>
+          )}
+        </View>
+      </View>
+    ) : (
+      <View className="mt-3">
+        <Text className="text-gray-300">
+          No similar scan found yet. This scan will be available for admin review.
+        </Text>
+      </View>
+    )}
+  </View>
+)}
             </View>
           )}
         </View>

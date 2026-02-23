@@ -25,12 +25,6 @@ const handleTabChange = (tab: string) => {
   router.push(routeMap[tab]);
 };
 
-  // redirect default → Dashboard
-  useEffect(() => {
-    router.replace("/(tabs)/dashboard");
-  }, []);
-
-  // Determine role (admin gets Admin tab)
   useEffect(() => {
     (async () => {
       const role = await AsyncStorage.getItem("role");

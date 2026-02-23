@@ -7,6 +7,9 @@ import * as Location from "expo-location";
 import { Picker } from "@react-native-picker/picker";
 import { PhoneIcon, MapPinIcon, TruckIcon } from "react-native-heroicons/outline";
 
+import { t } from "@/i18n";
+import { useLanguage } from "@/context/LanguageContext";
+
 type VendorRow = {
   vendor_id: number;
   vendor: string;
@@ -20,6 +23,8 @@ type VendorRow = {
 };
 
 export default function VendorsPage() {
+  const { version } = useLanguage();
+
   const params = useLocalSearchParams<{ part?: string }>();
   const initialPart = (params.part || "").toString().trim();
 
@@ -56,14 +61,12 @@ export default function VendorsPage() {
 
   const fetchPartsDropdown = async () => {
     try {
-      // load ALL parts for dropdown
       const res = await axios.get(`${API_URL}/parts/search`, { params: { q: "", limit: 200 }, timeout: 25000 });
       if (!res.data?.success) return;
 
       const names = (res.data.results || []).map((x: any) => x.part_name).filter(Boolean);
       setPartsList(names);
 
-      // If we opened without a part param, default to first
       if (!part && names.length) setPart(names[0]);
     } catch {
       // ignore
@@ -72,7 +75,7 @@ export default function VendorsPage() {
 
   const fetchVendors = async () => {
     if (!part) {
-      Alert.alert("Select a part", "Choose a part from dropdown first.");
+      Alert.alert(t("vendors.select_part_title"), t("vendors.select_part_msg"));
       return;
     }
     try {
@@ -90,12 +93,12 @@ export default function VendorsPage() {
       const res = await axios.get(`${API_URL}/vendors/recommendations`, { params: query, timeout: 25000 });
       if (!res.data?.success) {
         setVendors([]);
-        Alert.alert("No sellers", res.data?.message || "No sellers found.");
+        Alert.alert(t("vendors.no_sellers_title"), res.data?.message || t("vendors.no_sellers_msg"));
         return;
       }
       setVendors(res.data.results || []);
     } catch (e: any) {
-      Alert.alert("API Error", e?.message || "Failed to load sellers.");
+      Alert.alert(t("vendors.api_error_title"), e?.message || t("vendors.api_error_msg"));
     } finally {
       setLoading(false);
     }
@@ -119,10 +122,10 @@ export default function VendorsPage() {
     return (
       <View className="px-6 pt-12 pb-4 bg-gray-800">
         <View className="flex-row items-center justify-between">
-          <Text className="text-white text-3xl font-extrabold">Vendors</Text>
+          <Text className="text-white text-3xl font-extrabold">{t("vendors.title")}</Text>
           <View className="flex-row items-center">
             <TruckIcon size={22} color="#9CA3AF" />
-            <Text className="text-gray-300 ml-2">Western Province</Text>
+            <Text className="text-gray-300 ml-2">{t("vendors.region")}</Text>
           </View>
         </View>
 
@@ -145,7 +148,7 @@ export default function VendorsPage() {
             className={`px-4 py-3 rounded-2xl ${inStockOnly ? "bg-white" : "bg-gray-900 border border-gray-700"}`}
           >
             <Text className={`${inStockOnly ? "text-gray-900" : "text-gray-200"} font-bold`}>
-              In-stock: {inStockOnly ? "ON" : "OFF"}
+              {t("vendors.in_stock")}: {inStockOnly ? t("common.on") : t("common.off")}
             </Text>
           </Pressable>
 
@@ -158,22 +161,21 @@ export default function VendorsPage() {
             className={`px-4 py-3 rounded-2xl ${useGps ? "bg-white" : "bg-gray-900 border border-gray-700"}`}
           >
             <Text className={`${useGps ? "text-gray-900" : "text-gray-200"} font-bold`}>
-              GPS: {useGps ? "ON" : "OFF"}
+              {t("vendors.gps")}: {useGps ? t("common.on") : t("common.off")}
             </Text>
           </Pressable>
         </View>
 
-        <Pressable
-          onPress={fetchVendors}
-          className="mt-4 bg-yellow-500 py-4 rounded-2xl items-center"
-        >
-          <Text className="text-gray-900 font-extrabold">{loading ? "Loading..." : "Find Sellers"}</Text>
+        <Pressable onPress={fetchVendors} className="mt-4 bg-yellow-500 py-4 rounded-2xl items-center">
+          <Text className="text-gray-900 font-extrabold">
+            {loading ? t("common.loading") : t("vendors.find_sellers")}
+          </Text>
         </Pressable>
 
-        {gpsLoading ? <Text className="text-gray-400 mt-2">Getting your location…</Text> : null}
+        {gpsLoading ? <Text className="text-gray-400 mt-2">{t("vendors.getting_location")}</Text> : null}
       </View>
     );
-  }, [part, partsList, inStockOnly, useGps, loading, gpsLoading]);
+  }, [part, partsList, inStockOnly, useGps, loading, gpsLoading, version]);
 
   const renderItem = ({ item }: { item: VendorRow }) => (
     <View className="mx-6 mt-4 bg-gray-800 rounded-3xl p-5 border border-gray-700">
@@ -189,9 +191,11 @@ export default function VendorsPage() {
         </View>
 
         <Text className="text-yellow-400 font-extrabold mt-3 text-base">
-          LKR {item.price_lkr.toLocaleString()}
+          {t("vendors.currency")} {item.price_lkr.toLocaleString()}
         </Text>
-        <Text className="text-gray-300 mt-1">Stock: {item.stock_qty}</Text>
+        <Text className="text-gray-300 mt-1">
+          {t("vendors.stock")}: {item.stock_qty}
+        </Text>
       </View>
 
       {!!item.phone && (
@@ -200,7 +204,7 @@ export default function VendorsPage() {
           className="mt-4 bg-gray-900 border border-gray-700 py-3 rounded-2xl flex-row items-center justify-center"
         >
           <PhoneIcon size={18} color="#fff" />
-          <Text className="text-white font-bold ml-2">Call Vendor</Text>
+          <Text className="text-white font-bold ml-2">{t("vendors.call_vendor")}</Text>
         </Pressable>
       )}
     </View>
@@ -220,7 +224,7 @@ export default function VendorsPage() {
             </View>
           ) : (
             <View className="p-6">
-              <Text className="text-gray-400">No sellers yet. Select a part and tap “Find Sellers”.</Text>
+              <Text className="text-gray-400">{t("vendors.empty_hint")}</Text>
             </View>
           )
         }
